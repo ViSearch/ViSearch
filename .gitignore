@@ -1,0 +1,13 @@
+/out/
+/target/
+/commons-lang3-3.10/
+*.trc
+*.obj
+*.json
+*.txt
+/lib/
+/.idea/
+*.zip
+*.out
+*.data
+/document/

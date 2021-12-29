@@ -186,7 +186,7 @@ public class VisearchChecker {
         System.out.println("Starting " + df.format(new Date()));
         for (File file : files) {
             i++;
-            // if (i < 23186) {
+            // if (i < 170000) {
             //     continue;
             // }
             String result = measureVisibility(file.toString());
@@ -283,7 +283,7 @@ public class VisearchChecker {
                 if (res.getBoolean("measure")) {
                     System.out.println(checker.measureVisibility(filepath));
                 } else {
-                    checker.testTrace(filepath, VisibilityType.getVisibility(res.getString("vis")));
+                    System.out.println(checker.testTrace(filepath, VisibilityType.getVisibility(res.getString("vis"))));
                 }
             }
             System.out.println(res);

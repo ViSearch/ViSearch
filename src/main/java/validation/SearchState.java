@@ -86,12 +86,14 @@ public class SearchState implements Serializable, Comparable<SearchState> {
             for (HBGNode node : nodes) {
                 result.addAll(visibility.getNodeVisibility(node));
             }
+            result.addAll(nodes);
             return result;
         } else if (visibilityType == VisibilityType.PEER) {
             Set<HBGNode> result = new HashSet<>();
             for (HBGNode node : nodes) {
                 result.addAll(node.getAllPrevs());
             }
+            result.addAll(nodes);
             return result;
         } else {
             return new HashSet<>();

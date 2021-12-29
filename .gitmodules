@@ -1,6 +1,7 @@
-[submodule "experiment/crdt-riak"]
-	path = experiment/crdt-riak
-	url = https://github.com/LintianShi/Riak-CRDT-Experiment.git
-[submodule "experiment/crdt-redis"]
-	path = experiment/crdt-redis
-	url = https://github.com/LintianShi/Redis-CRDT-Experiment.git
+
+[submodule "experiment/Redis-CRDT-Experiment"]
+	path = experiment/Redis-CRDT-Experiment
+	url = git@github.com:StupidTrout/Redis-CRDT-Experiment.git
+[submodule "experiment/Riak-CRDT-Experiment"]
+	path = experiment/Riak-CRDT-Experiment
+	url = git@github.com:StupidTrout/Riak-CRDT-Experiment.git

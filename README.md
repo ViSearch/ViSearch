@@ -1,13 +1,27 @@
-# ViSearch
+ViSearch
 
-A framework for consistency measurement of replicated data type. 
+This is the repository of a research project ViSearch, which is a framework for weak consistency measurement of replicated data type. 
 
-# INSTALL
-* Java 9, Maven 3.3.9
-* mvn compile & mvn package
+It is includes two components:
 
-# USAGE
+- ViSearch Checker: measure the consistency level of a history of replicated 
+- ViSearch Experiment: experiments that interact with database and generate histories
+  - Redis-Experiment
+  - Riak-Experiment
 
-# Document
+ViSearch Checker
 
-See in directory ***document***.
+ViSearch Experiment
+
+If you want to adjust configuration of experiment, or generate new histories, see 
+
+INSTALL
+
+- Java 9, Maven 3.3.9
+- mvn compile & mvn package
+
+USAGE
+
+Document
+
+See in directory document.

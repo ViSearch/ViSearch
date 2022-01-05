@@ -258,10 +258,10 @@ public class VisearchChecker {
                 .type(String.class)
                 .dest("vis")
                 .setDefault("complete");
-        parser.addArgument("--unset-measure").help(". Enable measure")
+        parser.addArgument("--unset-measure").help(". Disable measure")
                 .dest("measure")
                 .action(storeFalse());
-        parser.addArgument("--unset-dataset").help(". Checking for data set")
+        parser.addArgument("--unset-dataset").help(". Disable checking for data set")
                 .dest("dataset")
                 .action(storeFalse());
         Namespace res;

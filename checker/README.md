@@ -73,7 +73,7 @@ We will demonstrate the format of history in ViSearch.
 
 For example, there are 3 sessions in this history. Session one has 6 operations, session two has 6 operations, and session three has 3 operations. 
 
-Line 2~7 belong to session one, line 8~13 belong to session two, and line 14~16 belong to session three. 
+Line 2\~7 belong to session one, line 8\~13 belong to session two, and line 14\~16 belong to session three. 
 
 ```
 3 6 6 3

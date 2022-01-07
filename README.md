@@ -6,8 +6,8 @@ It is includes two components:
 
 * [ViSearch Checker](https://github.com/AnonymousAccountForPaperReview/ViSearch/tree/main/checker): measures the consistency level of a history of replicated 
 * [ViSearch Experiment](https://github.com/AnonymousAccountForPaperReview/ViSearch/tree/main/experiment): experiments that interact with database and generate histories
-  * [Redis-Experiment](https://github.com/AnonymousAccountForPaperReview/Redis-CRDT-Experiment)
-  * [Riak-Experiment](https://github.com/AnonymousAccountForPaperReview/Riak-CRDT-Experiment)
+  * [CRDT-Redis-Experiment](https://github.com/AnonymousAccountForPaperReview/Redis-CRDT-Experiment): experiments on CRDT-Redis [[1]](https://github.com/elem-azar-unis/CRDT-Redis), a open-source project of several Conflict-Free Replicated Data Types (CRDTs) implemented based on Redis(6.0.5).
+  * [Riak-Experiment](https://github.com/AnonymousAccountForPaperReview/Riak-CRDT-Experiment): experiments on Riak's data types [[2]](https://docs.riak.com/riak/kv/2.2.3/developing/data-types/index.html). 
 
 # Run ViSearch
 

@@ -1,5 +1,3 @@
-
-
 # ViSearch Checker
 
 ViSearch checker is the core of consistency measurement for replicated data type. 
@@ -60,4 +58,38 @@ For example,  check a history of data type map whether satisfies peer.
 
 ```
 $ ./check.sh --type map --filepath ../map-r1/map_r1_default_17832.trc --unset-measure --unset-dataset --vis peer --parallel 8
+```
+
+## Format of History
+
+Histories are traces of data type access. The history defines how the clients interact with the data type store, and specifies what information is recorded about this interaction. 
+
+We will demonstrate the format of history in ViSearch. 
+
+### Information of History
+
+* Sessions: the number of sessions and the number of operations for each session.
+* Operations: method name, argument1, argument2, ... , argumentk, return value. 
+
+For example, there are 3 sessions in this history. Session one has 6 operations, session two has 6 operations, and session three has 3 operations. 
+
+Line 2~7 belong to session one, line 8~13 belong to session two, and line 14~16 belong to session three. 
+
+```
+3 6 6 3
+0,0,remove,0,null
+0,0,contains,2,false
+0,0,size,1
+0,0,contains,1,false
+0,0,add,3,null
+0,0,add,0,null
+0,0,remove,2,null
+0,0,size,0
+0,0,add,0,null
+0,0,remove,1,null
+0,0,size,3
+0,0,size,2
+0,0,contains,3,false
+0,0,add,0,null
+0,0,add,1,null
 ```

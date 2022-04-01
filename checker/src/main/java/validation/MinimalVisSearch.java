@@ -14,7 +14,6 @@ import java.util.*;
 public class MinimalVisSearch {
     private SearchStatePriorityQueue stateQueue;
     private Deque<SearchState> stateDeque = new LinkedList<>();
-//    private LinkedBlockingDeque<SearchState> stateQueue = new LinkedBlockingDeque<>();
     private static HappenBeforeGraph happenBeforeGraph;
     private RuleTable ruleTable = null;
     private SearchConfiguration configuration;
@@ -34,28 +33,38 @@ public class MinimalVisSearch {
         MinimalVisSearch.happenBeforeGraph = happenBeforeGraph;
         SearchState startState = new SearchState();
         startState.getLinearization().addFront(happenBeforeGraph.getStartNodes());
-        //stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
+
+//        stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
+//        for (SearchState newState : startState.linExtent()) {
+//            stateQueue.offer(newState);
+//        }
+
         for (SearchState newState : startState.linExtent()) {
-            //stateQueue.offer(newState);
-            stateDeque.addFirst(newState);
+            stateDeque.offerFirst(newState);
         }
     }
 
     public void init(HappenBeforeGraph happenBeforeGraph, SearchState initState) {
         SearchState.happenBeforeGraph = happenBeforeGraph;
         MinimalVisSearch.happenBeforeGraph = happenBeforeGraph;
-        //stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
-        //stateQueue.offer(initState);
-        stateDeque.addFirst(initState);
+
+//        stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
+//        stateQueue.offer(initState);
+
+        stateDeque.offerFirst(initState);
     }
 
     public void init(HappenBeforeGraph happenBeforeGraph, List<SearchState> initStates) {
         SearchState.happenBeforeGraph = happenBeforeGraph;
         MinimalVisSearch.happenBeforeGraph = happenBeforeGraph;
-       // stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
-        for (SearchState state : initStates)
+        stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
+//        for (SearchState state : initStates) {
 //            stateQueue.offer(state);
-            stateDeque.addFirst(state);
+//        }
+
+        for (SearchState state : initStates) {
+            stateDeque.offerFirst(state);
+        }
     }
 
     public boolean checkConsistency() {
@@ -63,6 +72,7 @@ public class MinimalVisSearch {
         while (!stateDeque.isEmpty() && !exit
                 && (configuration.getQueueLimit() == -1 || stateDeque.size() < configuration.getQueueLimit())) {
             SearchState state = stateDeque.pollFirst();
+//            SearchState state = stateQueue.poll();
             List<HBGNode> subset = null;
             while ((subset = state.nextVisibility(ruleTable)) != null && !exit) {
                 stateExplored++;
@@ -79,18 +89,19 @@ public class MinimalVisSearch {
                     }
                     state.pruneVisibility(subset);
                     List<SearchState> list =state.linExtent(ruleTable);
-                    //stateQueue.offer(state);
+//                    stateQueue.offer(state);
                     if (configuration.getSearchMode() == 0) {
-                        stateDeque.addFirst(state);
+                        stateDeque.offerFirst(state);
                     } else {
-                        stateDeque.addLast(state);
+                        stateDeque.offerLast(state);
                     }
+                    //System.out.println(stateDeque.size());
                     for (SearchState newState : list) {
-                        //stateQueue.offer(newState);
+//                        stateQueue.offer(newState);
                         if (configuration.getSearchMode() == 0) {
-                            stateDeque.addFirst(state);
+                            stateDeque.offerFirst(newState);
                         } else {
-                            stateDeque.addLast(state);
+                            stateDeque.offerLast(newState);
                         }
                     }
                     break;
@@ -99,7 +110,7 @@ public class MinimalVisSearch {
                }
             }
         }
-//        System.out.println(stateExplored);
+        //System.out.println(stateExplored);
         return false;
     }
 

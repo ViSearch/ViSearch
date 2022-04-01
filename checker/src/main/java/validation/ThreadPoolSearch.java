@@ -28,11 +28,13 @@ public class ThreadPoolSearch {
         Semaphore semaphore = new Semaphore(0);
         MultiSearchCoodinator coodinator = new MultiSearchCoodinator(pool, semaphore);
         int stateNum = startStates.size();
+//        System.out.println("stateNum: " + stateNum);
         for (int i = 0; i < threadNum; i++) {
             List<SearchState> initStates = new LinkedList<>();
             for (int k = i; k < stateNum; k = k + threadNum) {
                 initStates.add(startStates.get(k));
             }
+            //System.out.println("initStates: " + initStates.size());
             MinimalVisSearch visSearch = new MinimalVisSearch(configuration);
             visSearch.init(happenBeforeGraph, initStates);
             visSearch.setRuleTable(ruleTable);
@@ -78,12 +80,15 @@ class MultiSearchCoodinator {
     }
 
     public void finish() {
+        //System.out.println("finish");
         idleThreadNum.incrementAndGet();
         semaphore.release();
     }
 
     public void find() {
+        //System.out.println("find");
         result = true;
+        //System.out.println(result);
         semaphore.release(threadNum);
     }
 

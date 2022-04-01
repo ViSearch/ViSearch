@@ -88,9 +88,17 @@ public class VisearchChecker {
             return result;
         }
         List<SearchState> states = subVfs.getAllSearchState();
-        MultiThreadSearch multiThreadSearch = new MultiThreadSearch(happenBeforeGraph, configuration, threadNum);
-        multiThreadSearch.setRuleTable(ruleTable);
-        result = multiThreadSearch.startSearch(states);
+        ThreadPoolSearch threadPoolSearch = new ThreadPoolSearch(happenBeforeGraph, configuration, threadNum);
+        threadPoolSearch.setRuleTable(ruleTable);
+        //MultiThreadSearch multiThreadSearch = new MultiThreadSearch(happenBeforeGraph, configuration, threadNum);
+        //multiThreadSearch.setRuleTable(ruleTable);
+        //result = multiThreadSearch.startSearch(states);
+        try {
+            result = threadPoolSearch.startSearch(states);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         //averageState += multiThreadSearch.getStateExplored();
         return result;
     }

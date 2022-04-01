@@ -39,6 +39,10 @@ public class ThreadPoolSearch {
             pool.execute(new SearchTask(visSearch, coodinator));
         }
         semaphore.acquire(threadNum);
+        pool.shutdownNow();
+        while (!pool.isShutdown()) {
+            ;
+        }
         return coodinator.getResult();
     }
 

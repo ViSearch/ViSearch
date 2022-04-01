@@ -1,5 +1,6 @@
 package checking;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import history.VisibilityType;
 import datatype.DataTypeFactory;
 import history.HappenBeforeGraph;
@@ -16,6 +17,10 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static net.sourceforge.argparse4j.impl.Arguments.*;
 
@@ -26,15 +31,21 @@ public class VisearchChecker {
     private boolean stateFilter = true;
     public boolean isStateFilter = false;
 
+    private ThreadPoolExecutor pool;
+
     public VisearchChecker(String adt, int threadNum) {
         this.adt = adt;
         this.threadNum = threadNum;
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Visearch-pool-%d").build();
+        pool = new ThreadPoolExecutor(threadNum / 2, threadNum, 3000L,TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
     }
 
     public VisearchChecker(String adt, int threadNum, boolean stateFilter) {
         this.adt = adt;
         this.threadNum = threadNum;
         this.stateFilter = stateFilter;
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Visearch-pool-%d").build();
+        pool = new ThreadPoolExecutor(threadNum / 2, threadNum, 3000L,TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
     }
 
     public boolean normalCheck(HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration) {

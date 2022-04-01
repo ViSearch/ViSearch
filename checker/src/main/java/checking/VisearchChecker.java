@@ -194,9 +194,6 @@ public class VisearchChecker {
         System.out.println("Starting " + df.format(new Date()));
         for (File file : files) {
             i++;
-            if (i < 50000) {
-                continue;
-            }
             String result = measureVisibility(file.toString());
             if (!result.equals("COMPLETE")) {
                 System.out.println(i + ":" + file + ":" + result);

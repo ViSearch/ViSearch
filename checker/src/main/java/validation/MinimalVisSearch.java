@@ -13,6 +13,7 @@ import java.util.*;
 
 public class MinimalVisSearch {
     private SearchStatePriorityQueue stateQueue;
+    private Deque<SearchState> stateDeque = new LinkedList<>();
 //    private LinkedBlockingDeque<SearchState> stateQueue = new LinkedBlockingDeque<>();
     private static HappenBeforeGraph happenBeforeGraph;
     private RuleTable ruleTable = null;
@@ -33,32 +34,35 @@ public class MinimalVisSearch {
         MinimalVisSearch.happenBeforeGraph = happenBeforeGraph;
         SearchState startState = new SearchState();
         startState.getLinearization().addFront(happenBeforeGraph.getStartNodes());
-        stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
+        //stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
         for (SearchState newState : startState.linExtent()) {
-            stateQueue.offer(newState);
+            //stateQueue.offer(newState);
+            stateDeque.addFirst(newState);
         }
     }
 
     public void init(HappenBeforeGraph happenBeforeGraph, SearchState initState) {
         SearchState.happenBeforeGraph = happenBeforeGraph;
         MinimalVisSearch.happenBeforeGraph = happenBeforeGraph;
-        stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
-        stateQueue.offer(initState);
+        //stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
+        //stateQueue.offer(initState);
+        stateDeque.addFirst(initState);
     }
 
     public void init(HappenBeforeGraph happenBeforeGraph, List<SearchState> initStates) {
         SearchState.happenBeforeGraph = happenBeforeGraph;
         MinimalVisSearch.happenBeforeGraph = happenBeforeGraph;
-        stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
+       // stateQueue = new SearchStatePriorityQueue(configuration.getSearchMode());
         for (SearchState state : initStates)
-            stateQueue.offer(state);
+//            stateQueue.offer(state);
+            stateDeque.addFirst(state);
     }
 
     public boolean checkConsistency() {
         AbstractDataType adt = new DataTypeFactory().getDataType(configuration.getAdt());
-        while (!stateQueue.isEmpty() && !exit
-                && (configuration.getQueueLimit() == -1 || stateQueue.size() < configuration.getQueueLimit())) {
-            SearchState state = stateQueue.poll();
+        while (!stateDeque.isEmpty() && !exit
+                && (configuration.getQueueLimit() == -1 || stateDeque.size() < configuration.getQueueLimit())) {
+            SearchState state = stateDeque.pollFirst();
             List<HBGNode> subset = null;
             while ((subset = state.nextVisibility(ruleTable)) != null && !exit) {
                 stateExplored++;
@@ -75,9 +79,19 @@ public class MinimalVisSearch {
                     }
                     state.pruneVisibility(subset);
                     List<SearchState> list =state.linExtent(ruleTable);
-                    stateQueue.offer(state);
+                    //stateQueue.offer(state);
+                    if (configuration.getSearchMode() == 0) {
+                        stateDeque.addFirst(state);
+                    } else {
+                        stateDeque.addLast(state);
+                    }
                     for (SearchState newState : list) {
-                        stateQueue.offer(newState);
+                        //stateQueue.offer(newState);
+                        if (configuration.getSearchMode() == 0) {
+                            stateDeque.addFirst(state);
+                        } else {
+                            stateDeque.addLast(state);
+                        }
                     }
                     break;
                } else {
@@ -91,8 +105,11 @@ public class MinimalVisSearch {
 
     public List<SearchState> getAllSearchState() {
         List<SearchState> states = new ArrayList<>();
-        while (!stateQueue.isEmpty()) {
-            states.add(stateQueue.poll());
+//        while (!stateQueue.isEmpty()) {
+//            states.add(stateQueue.poll());
+//        }
+        while (!stateDeque.isEmpty()) {
+            states.add(stateDeque.pollFirst());
         }
         return states;
     }

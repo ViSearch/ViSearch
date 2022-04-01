@@ -7,6 +7,7 @@ import rule.RuleTable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ThreadPoolSearch {
     private SearchConfiguration configuration;
@@ -51,13 +52,29 @@ class MultiSearchCoodinator {
     private ThreadPoolExecutor pool;
     private volatile boolean result = false;
     private Semaphore semaphore;
+    private AtomicInteger idleThreadNum = new AtomicInteger(0);
 
     public MultiSearchCoodinator(ThreadPoolExecutor pool, Semaphore semaphore) {
+        this.pool = pool;
         this.threadNum = pool.getMaximumPoolSize();
         this.semaphore = semaphore;
     }
 
+    public boolean loadShare(MinimalVisSearch visSearch) {
+        if (idleThreadNum.get() > 0) {
+            synchronized (MultiSearchCoodinator.class) {
+                if (idleThreadNum.get() > 0) {
+                    pool.execute(new SearchTask(visSearch, this));
+                    idleThreadNum.decrementAndGet();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void finish() {
+        idleThreadNum.incrementAndGet();
         semaphore.release();
     }
 

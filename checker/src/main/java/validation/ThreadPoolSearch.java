@@ -15,13 +15,15 @@ public class ThreadPoolSearch {
     private int threadNum = 16;
     private RuleTable ruleTable = null;
     private ThreadPoolExecutor pool;
+    private List<MinimalVisSearch> currentSearch;
 
-    public ThreadPoolSearch(HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration, int threadNum) {
+    public ThreadPoolSearch(ThreadPoolExecutor pool, HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration, int threadNum) {
         ThreadPoolSearch.happenBeforeGraph = happenBeforeGraph;
         this.configuration = configuration;
         this.threadNum = threadNum;
-        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Visearch-pool-%d").build();
-        pool = new ThreadPoolExecutor(threadNum / 2, threadNum, 3000L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+//        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Visearch-pool-%d").build();
+//        pool = new ThreadPoolExecutor(threadNum / 2, threadNum, 3000L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+        this.pool = pool;
     }
 
     public boolean startSearch(List<SearchState> startStates) throws InterruptedException {
@@ -38,14 +40,18 @@ public class ThreadPoolSearch {
             MinimalVisSearch visSearch = new MinimalVisSearch(configuration);
             visSearch.init(happenBeforeGraph, initStates);
             visSearch.setRuleTable(ruleTable);
+            currentSearch.add(visSearch);
             pool.execute(new SearchTask(visSearch, coodinator));
         }
         semaphore.acquire(threadNum);
-        pool.shutdownNow();
-        while (!pool.isShutdown()) {
-            ;
-        }
+        shutdown();
         return coodinator.getResult();
+    }
+
+    private void shutdown() {
+        for (MinimalVisSearch visSearch : currentSearch) {
+            visSearch.stopSearch();
+        }
     }
 
     public void setRuleTable(RuleTable ruleTable) {

@@ -30,7 +30,6 @@ public class VisearchChecker {
     private long averageState = 0;
     private boolean stateFilter = true;
     public boolean isStateFilter = false;
-
     private ThreadPoolExecutor pool;
 
     public VisearchChecker(String adt, int threadNum) {
@@ -99,7 +98,7 @@ public class VisearchChecker {
             return result;
         }
         List<SearchState> states = subVfs.getAllSearchState();
-        ThreadPoolSearch threadPoolSearch = new ThreadPoolSearch(happenBeforeGraph, configuration, threadNum);
+        ThreadPoolSearch threadPoolSearch = new ThreadPoolSearch(pool, happenBeforeGraph, configuration, threadNum);
         threadPoolSearch.setRuleTable(ruleTable);
         //MultiThreadSearch multiThreadSearch = new MultiThreadSearch(happenBeforeGraph, configuration, threadNum);
         //multiThreadSearch.setRuleTable(ruleTable);

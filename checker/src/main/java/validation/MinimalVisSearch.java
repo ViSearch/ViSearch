@@ -79,7 +79,7 @@ public class MinimalVisSearch {
             List<HBGNode> subset = null;
             while ((subset = state.nextVisibility(ruleTable)) != null && !exit) {
                 stateExplored++;
-                if (stateExplored > loopNum) {
+                if (stateExplored > loopNum && coordinator != null) {
                     stateExplored = 0;
                     if (stateDeque.size() > 1) {
                         List<SearchState> stateList = new LinkedList<>();

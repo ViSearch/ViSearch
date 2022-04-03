@@ -88,10 +88,14 @@ public class MinimalVisSearch {
                         }
                         MinimalVisSearch newSearch = new MinimalVisSearch(configuration, coordinator);
                         newSearch.init(happenBeforeGraph, stateList);
-                        if (!coordinator.loadShare(newSearch)) {
-                            for (SearchState searchState : stateList) {
-                                stateDeque.offerLast(searchState);
+                        try {
+                            if (!coordinator.loadShare(newSearch)) {
+                                for (SearchState searchState : stateList) {
+                                    stateDeque.offerLast(searchState);
+                                }
                             }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
                 }

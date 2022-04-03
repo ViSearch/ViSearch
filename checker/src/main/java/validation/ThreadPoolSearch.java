@@ -62,11 +62,12 @@ class MultiSearchCoordinator {
         this.threadNum = pool.getMaximumPoolSize();
     }
 
-    public boolean loadShare(MinimalVisSearch visSearch) {
+    public boolean loadShare(MinimalVisSearch visSearch) throws InterruptedException {
         if (idleThreadNum.get() > 0) {
             synchronized (MultiSearchCoordinator.class) {
                 if (idleThreadNum.get() > 0) {
                     idleThreadNum.decrementAndGet();
+                    semaphore.acquire();
                     execute(visSearch);
                     return true;
                 }

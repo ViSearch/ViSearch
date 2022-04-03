@@ -204,9 +204,6 @@ public class VisearchChecker {
         System.out.println("Starting " + df.format(new Date()));
         for (File file : files) {
             i++;
-            if (i == 10) {
-                break;
-            }
             String result = measureVisibility(file.toString());
             if (!result.equals("COMPLETE")) {
                 System.out.println(i + ":" + file + ":" + result);
@@ -216,6 +213,7 @@ public class VisearchChecker {
             }
         }
         System.out.println("Finishing " + df.format(new Date()));
+        pool.shutdownNow();
     }
 
     public boolean testTrace(String filename, VisibilityType visibilityType) throws Exception {

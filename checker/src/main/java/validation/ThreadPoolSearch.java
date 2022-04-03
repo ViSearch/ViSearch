@@ -15,7 +15,7 @@ public class ThreadPoolSearch {
     private int threadNum = 16;
     private RuleTable ruleTable = null;
     private ThreadPoolExecutor pool;
-    private List<MinimalVisSearch> currentSearch;
+    private List<MinimalVisSearch> currentSearch = new LinkedList<>();
 
     public ThreadPoolSearch(ThreadPoolExecutor pool, HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration, int threadNum) {
         ThreadPoolSearch.happenBeforeGraph = happenBeforeGraph;

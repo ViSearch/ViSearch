@@ -1,6 +1,5 @@
 package validation;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import history.HappenBeforeGraph;
 import rule.RuleTable;
 
@@ -14,21 +13,16 @@ public class ThreadPoolSearch {
     private static HappenBeforeGraph happenBeforeGraph;
     private int threadNum = 16;
     private RuleTable ruleTable = null;
-    private ThreadPoolExecutor pool;
-    private List<MinimalVisSearch> currentSearch = new LinkedList<>();
+    private MultiSearchCoordinator coordinator;
 
     public ThreadPoolSearch(ThreadPoolExecutor pool, HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration, int threadNum) {
         ThreadPoolSearch.happenBeforeGraph = happenBeforeGraph;
         this.configuration = configuration;
         this.threadNum = threadNum;
-//        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Visearch-pool-%d").build();
-//        pool = new ThreadPoolExecutor(threadNum / 2, threadNum, 3000L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
-        this.pool = pool;
+        coordinator = new MultiSearchCoordinator(pool);
     }
 
     public boolean startSearch(List<SearchState> startStates) throws InterruptedException {
-        Semaphore semaphore = new Semaphore(0);
-        MultiSearchCoodinator coodinator = new MultiSearchCoodinator(pool, semaphore);
         int stateNum = startStates.size();
 //        System.out.println("stateNum: " + stateNum);
         for (int i = 0; i < threadNum; i++) {
@@ -37,52 +31,52 @@ public class ThreadPoolSearch {
                 initStates.add(startStates.get(k));
             }
             //System.out.println("initStates: " + initStates.size());
-            MinimalVisSearch visSearch = new MinimalVisSearch(configuration);
+            MinimalVisSearch visSearch = new MinimalVisSearch(configuration, coordinator);
             visSearch.init(happenBeforeGraph, initStates);
             visSearch.setRuleTable(ruleTable);
-            currentSearch.add(visSearch);
-            pool.execute(new SearchTask(visSearch, coodinator));
+            coordinator.addSearch(visSearch);
+            coordinator.execute(visSearch);
         }
-        semaphore.acquire(threadNum);
-        shutdown();
-        return coodinator.getResult();
+        coordinator.await();
+        coordinator.shutdown();
+        return coordinator.getResult();
     }
 
-    private void shutdown() {
-        for (MinimalVisSearch visSearch : currentSearch) {
-            visSearch.stopSearch();
-        }
-    }
+
 
     public void setRuleTable(RuleTable ruleTable) {
         this.ruleTable = ruleTable;
     }
 }
 
-class MultiSearchCoodinator {
+class MultiSearchCoordinator {
     private int threadNum;
-    private ThreadPoolExecutor pool;
     private volatile boolean result = false;
-    private Semaphore semaphore;
+    private Semaphore semaphore = new Semaphore(0);
     private AtomicInteger idleThreadNum = new AtomicInteger(0);
+    private ThreadPoolExecutor pool;
+    private List<MinimalVisSearch> currentSearch = new LinkedList<>();
 
-    public MultiSearchCoodinator(ThreadPoolExecutor pool, Semaphore semaphore) {
+    public MultiSearchCoordinator(ThreadPoolExecutor pool) {
         this.pool = pool;
         this.threadNum = pool.getMaximumPoolSize();
-        this.semaphore = semaphore;
     }
 
     public boolean loadShare(MinimalVisSearch visSearch) {
         if (idleThreadNum.get() > 0) {
-            synchronized (MultiSearchCoodinator.class) {
+            synchronized (MultiSearchCoordinator.class) {
                 if (idleThreadNum.get() > 0) {
-                    pool.execute(new SearchTask(visSearch, this));
                     idleThreadNum.decrementAndGet();
+                    execute(visSearch);
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    public void addSearch(MinimalVisSearch search) {
+        currentSearch.add(search);
     }
 
     public void finish() {
@@ -98,9 +92,19 @@ class MultiSearchCoodinator {
         semaphore.release(threadNum);
     }
 
-//    public void setResult(boolean result) {
-//        this.result = result;
-//    }
+    public void shutdown() {
+        for (MinimalVisSearch visSearch : currentSearch) {
+            visSearch.stopSearch();
+        }
+    }
+
+    public void execute(MinimalVisSearch search) {
+        pool.execute(new SearchTask(search, this));
+    }
+
+    public void await() throws InterruptedException {
+        semaphore.acquire(threadNum);
+    }
 
     public boolean getResult() {
         return result;
@@ -109,19 +113,19 @@ class MultiSearchCoodinator {
 
 class SearchTask implements Runnable {
     private MinimalVisSearch visSearch;
-    private MultiSearchCoodinator coodinator;
+    private MultiSearchCoordinator coordinator;
 
-    public SearchTask(MinimalVisSearch visSearch, MultiSearchCoodinator coodinator) {
+    public SearchTask(MinimalVisSearch visSearch, MultiSearchCoordinator coordinator) {
         this.visSearch = visSearch;
-        this.coodinator = coodinator;
+        this.coordinator = coordinator;
     }
 
     public void run() {
         boolean result = visSearch.checkConsistency();
         if (result) {
-            coodinator.find();
+            coordinator.find();
         } else {
-            coodinator.finish();
+            coordinator.finish();
         }
     }
 }

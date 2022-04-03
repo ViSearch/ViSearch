@@ -22,9 +22,12 @@ public class MinimalVisSearch {
     private int readOperationFailLimit = 30;
     private List<SearchState> results = new ArrayList<>();
     private volatile boolean exit = false;
+    private MultiSearchCoordinator coordinator;
+    private int loopNum = 1000 + new Random().nextInt(200) - 100;
 
-    public MinimalVisSearch(SearchConfiguration configuration) {
+    public MinimalVisSearch(SearchConfiguration configuration, MultiSearchCoordinator coordinator) {
         this.configuration = configuration;
+        this.coordinator = coordinator;
         SearchState.visibilityType = configuration.getVisibilityType();
     }
 
@@ -76,12 +79,25 @@ public class MinimalVisSearch {
             List<HBGNode> subset = null;
             while ((subset = state.nextVisibility(ruleTable)) != null && !exit) {
                 stateExplored++;
+                if (stateExplored > loopNum) {
+                    stateExplored = 0;
+                    if (stateDeque.size() > 1) {
+                        List<SearchState> stateList = new LinkedList<>();
+                        for (int i = 0; i < stateDeque.size() / 2; i++) {
+                            stateList.add(stateDeque.pollLast());
+                        }
+                        MinimalVisSearch newSearch = new MinimalVisSearch(configuration, coordinator);
+                        newSearch.init(happenBeforeGraph, stateList);
+                        if (!coordinator.loadShare(newSearch)) {
+                            for (SearchState searchState : stateList) {
+                                stateDeque.offerLast(searchState);
+                            }
+                        }
+                    }
+                }
                 if (executeCheck(adt, state)) {
                     if (state.isComplete()) {
-//                        System.out.println(stateExplored);
-//                        System.out.println(state.toString());
                         results.add((SearchState) state.clone());
-//                        results.add(state);
                         if (!configuration.isFindAllAbstractExecution()) {
                             exit = true;
                             return true;
@@ -95,7 +111,6 @@ public class MinimalVisSearch {
                     } else {
                         stateDeque.offerLast(state);
                     }
-                    //System.out.println(stateDeque.size());
                     for (SearchState newState : list) {
 //                        stateQueue.offer(newState);
                         if (configuration.getSearchMode() == 0) {

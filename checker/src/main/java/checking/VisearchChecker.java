@@ -55,7 +55,7 @@ public class VisearchChecker {
             //     isStateFilter = true;
             // }
         }
-        MinimalVisSearch vfs = new MinimalVisSearch(configuration);
+        MinimalVisSearch vfs = new MinimalVisSearch(configuration, null);
         vfs.setRuleTable(ruleTable);
         vfs.init(happenBeforeGraph);
         boolean result = vfs.checkConsistency();
@@ -89,7 +89,7 @@ public class VisearchChecker {
                                                                 .setSearchMode(1)
                                                                 .setSearchLimit(-1)
                                                                 .build();
-        MinimalVisSearch subVfs = new MinimalVisSearch(subConfiguration);
+        MinimalVisSearch subVfs = new MinimalVisSearch(subConfiguration, null);
 //        subVfs.setRuleTable(ruleTable);
         subVfs.init(happenBeforeGraph);
         boolean result = subVfs.checkConsistency();

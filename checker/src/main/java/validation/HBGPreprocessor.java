@@ -173,7 +173,7 @@ public class HBGPreprocessor {
                                                             .setEnableOutputSchedule(false)
                                                             .setEnableIncompatibleRelation(false)
                                                             .build();
-                MinimalVisSearch subSearch = new MinimalVisSearch(configuration);
+                MinimalVisSearch subSearch = new MinimalVisSearch(configuration, null);
                 subSearch.init(subHBGraph);
                 subSearch.checkConsistency();
                 extractLinRules(subSearch.getResults(), linRules);

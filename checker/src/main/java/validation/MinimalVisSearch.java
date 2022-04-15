@@ -22,13 +22,16 @@ public class MinimalVisSearch {
     private int readOperationFailLimit = 30;
     private List<SearchState> results = new ArrayList<>();
     private volatile boolean exit = false;
+    private volatile boolean finish = false;
     private MultiSearchCoordinator coordinator;
-    private int loopNum = 1000 + new Random().nextInt(200) - 100;
+    private Random random = new Random();
+    private int loopNum;
 
     public MinimalVisSearch(SearchConfiguration configuration, MultiSearchCoordinator coordinator) {
         this.configuration = configuration;
         this.coordinator = coordinator;
         SearchState.visibilityType = configuration.getVisibilityType();
+        loopNum = 1000 + random.nextInt(200) - 100;
     }
 
     public void init(HappenBeforeGraph happenBeforeGraph) {
@@ -81,6 +84,7 @@ public class MinimalVisSearch {
                 stateExplored++;
                 if (stateExplored > loopNum && coordinator != null) {
                     stateExplored = 0;
+                    loopNum = 1000 + random.nextInt(200) - 100;
                     if (stateDeque.size() > 1) {
                         List<SearchState> stateList = new LinkedList<>();
                         for (int i = 0; i < stateDeque.size() / 2; i++) {
@@ -104,6 +108,7 @@ public class MinimalVisSearch {
                         results.add((SearchState) state.clone());
                         if (!configuration.isFindAllAbstractExecution()) {
                             exit = true;
+                            finish = true;
                             return true;
                         }
                     }
@@ -130,6 +135,7 @@ public class MinimalVisSearch {
             }
         }
         //System.out.println(stateExplored);
+        finish = true;
         return false;
     }
 
@@ -216,10 +222,17 @@ public class MinimalVisSearch {
 
     public void stopSearch() {
         exit = true;
+        while (!finish) {
+            ;
+        }
     }
 
     public boolean isExit() {
         return exit;
+    }
+
+    public boolean isFinish() {
+        return finish;
     }
 
     public int getStateExplored() {

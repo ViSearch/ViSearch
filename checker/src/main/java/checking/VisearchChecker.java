@@ -28,7 +28,7 @@ public class VisearchChecker {
     private String adt;
     private int threadNum = 8;
     private long averageState = 0;
-    private boolean stateFilter = true;
+    private boolean stateFilter = false;
     public boolean isStateFilter = false;
     private ThreadPoolExecutor pool;
 
@@ -204,6 +204,9 @@ public class VisearchChecker {
         System.out.println("Starting " + df.format(new Date()));
         for (File file : files) {
             i++;
+            // if (i == 10000) {
+            //     break;
+            // }
             String result = measureVisibility(file.toString());
             if (!result.equals("COMPLETE")) {
                 System.out.println(i + ":" + file + ":" + result);
@@ -263,6 +266,9 @@ public class VisearchChecker {
         parser.addArgument("-t", "--type").help(". Data type for checking")
                 .type(String.class)
                 .dest("type");
+        parser.addArgument("--disable-pruning").help(". Disable pruning")
+                .dest("pruning")
+                .action(storeFalse());
         parser.addArgument("-f", "--filepath").help(". File path to check")
                 .type(String.class)
                 .dest("filepath");
@@ -288,7 +294,9 @@ public class VisearchChecker {
             String dataType = res.getString("type");
             String filepath = res.getString("filepath");
             int threadNum = res.getInt("parallel");
-            VisearchChecker checker = new VisearchChecker(dataType, threadNum);
+            boolean pruning = true;
+            pruning = res.getBoolean("pruning");
+            VisearchChecker checker = new VisearchChecker(dataType, threadNum, pruning);
             if (res.getBoolean("dataset")) {
                 if (res.getBoolean("measure")) {
                     checker.measureDataSet(filepath);
@@ -303,9 +311,11 @@ public class VisearchChecker {
                 }
             }
             System.out.println(res);
+            System.out.println("Exit");
         } catch (ArgumentParserException e) {
             parser.handleError(e);
             System.exit(1);
         }
+        return;
     }
 }

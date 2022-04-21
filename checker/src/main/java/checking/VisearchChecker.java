@@ -204,8 +204,11 @@ public class VisearchChecker {
         System.out.println("Starting " + df.format(new Date()));
         for (File file : files) {
             i++;
-            // if (i == 10000) {
-            //     break;
+            // if (i <= 60000) {
+            //     continue;
+            // }
+            // if (file.toString().equals("../../pq-f/result/rwf_rpq_default_1636085387554633971.trc")) {
+            //     continue;
             // }
             String result = measureVisibility(file.toString());
             if (!result.equals("COMPLETE")) {

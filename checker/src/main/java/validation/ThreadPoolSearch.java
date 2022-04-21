@@ -17,12 +17,19 @@ public class ThreadPoolSearch {
     private MultiSearchCoordinator coordinator;
     private static int epoch = 0;
 
+    // public ThreadPoolSearch(ThreadPoolExecutor pool, HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration, int threadNum) {
+    //     ThreadPoolSearch.happenBeforeGraph = happenBeforeGraph;
+    //     this.configuration = configuration;
+    //     this.threadNum = threadNum;
+    //     epoch++;
+    //     coordinator = new MultiSearchCoordinator(pool);
+    // }
+
     public ThreadPoolSearch(ThreadPoolExecutor pool, HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration, int threadNum) {
         ThreadPoolSearch.happenBeforeGraph = happenBeforeGraph;
         this.configuration = configuration;
         this.threadNum = threadNum;
-        epoch++;
-        coordinator = new MultiSearchCoordinator(pool);
+        coordinator = new MultiSearchCoordinator(threadNum);
     }
 
     public boolean startSearch(List<SearchState> startStates) throws InterruptedException {
@@ -62,12 +69,17 @@ class MultiSearchCoordinator {
     private volatile boolean sharing = false;
     private Semaphore semaphore = new Semaphore(0);
     private AtomicInteger idleThreadNum = new AtomicInteger(0);
-    private ThreadPoolExecutor pool;
+    //private ThreadPoolExecutor pool;
     private List<MinimalVisSearch> currentSearch = new LinkedList<>();
 
-    public MultiSearchCoordinator(ThreadPoolExecutor pool) {
-        this.pool = pool;
-        this.threadNum = pool.getMaximumPoolSize();
+    // public MultiSearchCoordinator(ThreadPoolExecutor pool) {
+    //     this.pool = pool;
+    //     this.threadNum = pool.getMaximumPoolSize();
+    //     taskList = new ArrayList<>();
+    // }
+
+    public MultiSearchCoordinator(int threadNum) {
+        this.threadNum = threadNum;
         taskList = new ArrayList<>();
     }
 
@@ -103,7 +115,8 @@ class MultiSearchCoordinator {
     }
 
     public void shutdown() {
-        // synchronized (MultiSearchCoordinator.class) {
+        exiting = true;
+        synchronized (MultiSearchCoordinator.class) {
             exiting = true;
             int sz = taskList.size();
             for (int i = 0; i < sz; i++) {
@@ -113,7 +126,7 @@ class MultiSearchCoordinator {
                 }
             }
             
-        // }
+        }
     }
 
     public void execute(MinimalVisSearch search) {

@@ -222,9 +222,6 @@ public class MinimalVisSearch {
 
     public void stopSearch() {
         exit = true;
-        while (!finish) {
-            ;
-        }
     }
 
     public boolean isExit() {

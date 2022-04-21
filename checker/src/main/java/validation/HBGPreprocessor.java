@@ -159,11 +159,15 @@ public class HBGPreprocessor {
 //                System.out.println(node.toString());
                 List<List<HBGNode>> relatedNodes = adt.getRelatedOperations(node, happenBeforeGraph);
 //                System.out.println(relatedNodes.toString());
-
-                HappenBeforeGraph subHBGraph = new HappenBeforeGraph(relatedNodes);
-                if (subHBGraph.size() <= 1) {
+                int sumOfRelatedNodes = 0;
+                for (List<HBGNode> list : relatedNodes) {
+                    sumOfRelatedNodes += list.size();
+                }
+                if (sumOfRelatedNodes <= 1 || sumOfRelatedNodes > 7) {
                     continue;
                 }
+                HappenBeforeGraph subHBGraph = new HappenBeforeGraph(relatedNodes);
+                
 
                 SearchConfiguration configuration = new SearchConfiguration.Builder()
                                                             .setAdt(dataType)
@@ -173,7 +177,7 @@ public class HBGPreprocessor {
                                                             .setEnableOutputSchedule(false)
                                                             .setEnableIncompatibleRelation(false)
                                                             .build();
-                MinimalVisSearch subSearch = new MinimalVisSearch(configuration);
+                MinimalVisSearch subSearch = new MinimalVisSearch(configuration, null);
                 subSearch.init(subHBGraph);
                 subSearch.checkConsistency();
                 extractLinRules(subSearch.getResults(), linRules);

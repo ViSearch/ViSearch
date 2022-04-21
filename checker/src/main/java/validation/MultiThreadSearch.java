@@ -34,7 +34,7 @@ public class MultiThreadSearch {
             for (int k = i; k < stateNum; k = k + searchThreadNum) {
                 initStates.add(startStates.get(k));
             }
-            MinimalVisSearch visSearch = new MinimalVisSearch(configuration);
+            MinimalVisSearch visSearch = new MinimalVisSearch(configuration, null);
             visSearch.init(happenBeforeGraph, initStates);
             visSearch.setRuleTable(ruleTable);
             searchThreads.add(new SearchThread(visSearch, searchLock));

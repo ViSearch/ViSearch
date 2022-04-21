@@ -1,5 +1,6 @@
 package checking;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import history.VisibilityType;
 import datatype.DataTypeFactory;
 import history.HappenBeforeGraph;
@@ -16,6 +17,10 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static net.sourceforge.argparse4j.impl.Arguments.*;
 
@@ -23,18 +28,23 @@ public class VisearchChecker {
     private String adt;
     private int threadNum = 8;
     private long averageState = 0;
-    private boolean stateFilter = true;
+    private boolean stateFilter = false;
     public boolean isStateFilter = false;
+    private ThreadPoolExecutor pool;
 
     public VisearchChecker(String adt, int threadNum) {
         this.adt = adt;
         this.threadNum = threadNum;
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Visearch-pool-%d").build();
+        pool = new ThreadPoolExecutor(threadNum / 2, threadNum, 3000L,TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
     }
 
     public VisearchChecker(String adt, int threadNum, boolean stateFilter) {
         this.adt = adt;
         this.threadNum = threadNum;
         this.stateFilter = stateFilter;
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Visearch-pool-%d").build();
+        pool = new ThreadPoolExecutor(threadNum / 2, threadNum, 3000L,TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
     }
 
     public boolean normalCheck(HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration) {
@@ -45,7 +55,7 @@ public class VisearchChecker {
             //     isStateFilter = true;
             // }
         }
-        MinimalVisSearch vfs = new MinimalVisSearch(configuration);
+        MinimalVisSearch vfs = new MinimalVisSearch(configuration, null);
         vfs.setRuleTable(ruleTable);
         vfs.init(happenBeforeGraph);
         boolean result = vfs.checkConsistency();
@@ -79,7 +89,7 @@ public class VisearchChecker {
                                                                 .setSearchMode(1)
                                                                 .setSearchLimit(-1)
                                                                 .build();
-        MinimalVisSearch subVfs = new MinimalVisSearch(subConfiguration);
+        MinimalVisSearch subVfs = new MinimalVisSearch(subConfiguration, null);
 //        subVfs.setRuleTable(ruleTable);
         subVfs.init(happenBeforeGraph);
         boolean result = subVfs.checkConsistency();
@@ -88,9 +98,17 @@ public class VisearchChecker {
             return result;
         }
         List<SearchState> states = subVfs.getAllSearchState();
-        MultiThreadSearch multiThreadSearch = new MultiThreadSearch(happenBeforeGraph, configuration, threadNum);
-        multiThreadSearch.setRuleTable(ruleTable);
-        result = multiThreadSearch.startSearch(states);
+        ThreadPoolSearch threadPoolSearch = new ThreadPoolSearch(pool, happenBeforeGraph, configuration, threadNum);
+        threadPoolSearch.setRuleTable(ruleTable);
+        //MultiThreadSearch multiThreadSearch = new MultiThreadSearch(happenBeforeGraph, configuration, threadNum);
+        //multiThreadSearch.setRuleTable(ruleTable);
+        //result = multiThreadSearch.startSearch(states);
+        try {
+            result = threadPoolSearch.startSearch(states);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         //averageState += multiThreadSearch.getStateExplored();
         return result;
     }
@@ -186,9 +204,12 @@ public class VisearchChecker {
         System.out.println("Starting " + df.format(new Date()));
         for (File file : files) {
             i++;
-            if (i < 50000) {
-                continue;
-            }
+            // if (i <= 60000) {
+            //     continue;
+            // }
+            // if (file.toString().equals("../../pq-f/result/rwf_rpq_default_1636085387554633971.trc")) {
+            //     continue;
+            // }
             String result = measureVisibility(file.toString());
             if (!result.equals("COMPLETE")) {
                 System.out.println(i + ":" + file + ":" + result);
@@ -198,6 +219,7 @@ public class VisearchChecker {
             }
         }
         System.out.println("Finishing " + df.format(new Date()));
+        pool.shutdownNow();
     }
 
     public boolean testTrace(String filename, VisibilityType visibilityType) throws Exception {
@@ -247,6 +269,9 @@ public class VisearchChecker {
         parser.addArgument("-t", "--type").help(". Data type for checking")
                 .type(String.class)
                 .dest("type");
+        parser.addArgument("--disable-pruning").help(". Disable pruning")
+                .dest("pruning")
+                .action(storeFalse());
         parser.addArgument("-f", "--filepath").help(". File path to check")
                 .type(String.class)
                 .dest("filepath");
@@ -272,7 +297,9 @@ public class VisearchChecker {
             String dataType = res.getString("type");
             String filepath = res.getString("filepath");
             int threadNum = res.getInt("parallel");
-            VisearchChecker checker = new VisearchChecker(dataType, threadNum);
+            boolean pruning = true;
+            pruning = res.getBoolean("pruning");
+            VisearchChecker checker = new VisearchChecker(dataType, threadNum, pruning);
             if (res.getBoolean("dataset")) {
                 if (res.getBoolean("measure")) {
                     checker.measureDataSet(filepath);
@@ -287,9 +314,11 @@ public class VisearchChecker {
                 }
             }
             System.out.println(res);
+            System.out.println("Exit");
         } catch (ArgumentParserException e) {
             parser.handleError(e);
             System.exit(1);
         }
+        return;
     }
 }

@@ -181,7 +181,7 @@ public class MinimalVisSearch {
                 if (lastNode.getInvocation().getRetValue().equals(ret)) {
                     return true;
                 } else {
-//                    System.out.println(lastNode.getInvocation().toString());
+//                    System.out.println(lastNode.getInvocation().toString() + " -- " + ret);
                     return false;
                 }
             }

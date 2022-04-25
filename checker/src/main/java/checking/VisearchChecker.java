@@ -25,26 +25,21 @@ import java.util.concurrent.TimeUnit;
 import static net.sourceforge.argparse4j.impl.Arguments.*;
 
 public class VisearchChecker {
-    private String adt;
+    protected String adt;
     private int threadNum = 8;
     private long averageState = 0;
     private boolean stateFilter = false;
     public boolean isStateFilter = false;
-    private ThreadPoolExecutor pool;
 
     public VisearchChecker(String adt, int threadNum) {
         this.adt = adt;
         this.threadNum = threadNum;
-        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Visearch-pool-%d").build();
-        pool = new ThreadPoolExecutor(threadNum / 2, threadNum, 3000L,TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
     }
 
     public VisearchChecker(String adt, int threadNum, boolean stateFilter) {
         this.adt = adt;
         this.threadNum = threadNum;
         this.stateFilter = stateFilter;
-        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Visearch-pool-%d").build();
-        pool = new ThreadPoolExecutor(threadNum / 2, threadNum, 3000L,TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
     }
 
     public boolean normalCheck(HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration) {
@@ -98,7 +93,7 @@ public class VisearchChecker {
             return result;
         }
         List<SearchState> states = subVfs.getAllSearchState();
-        ThreadPoolSearch threadPoolSearch = new ThreadPoolSearch(pool, happenBeforeGraph, configuration, threadNum);
+        ThreadPoolSearch threadPoolSearch = new ThreadPoolSearch(null, happenBeforeGraph, configuration, threadNum);
         threadPoolSearch.setRuleTable(ruleTable);
         //MultiThreadSearch multiThreadSearch = new MultiThreadSearch(happenBeforeGraph, configuration, threadNum);
         //multiThreadSearch.setRuleTable(ruleTable);
@@ -219,7 +214,6 @@ public class VisearchChecker {
             }
         }
         System.out.println("Finishing " + df.format(new Date()));
-        pool.shutdownNow();
     }
 
     public boolean testTrace(String filename, VisibilityType visibilityType) throws Exception {
@@ -237,6 +231,19 @@ public class VisearchChecker {
         return multiThreadCheck(happenBeforeGraph, configuration);
     }
 
+    public boolean testTrace(HappenBeforeGraph happenBeforeGraph, VisibilityType visibilityType) throws Exception {
+        SearchConfiguration configuration = new SearchConfiguration.Builder()
+                .setAdt(adt)
+                .setEnableIncompatibleRelation(false)
+                .setEnablePrickOperation(false)
+                .setEnableOutputSchedule(false)
+                .setVisibilityType(visibilityType)
+                .setFindAllAbstractExecution(false)
+                .build();
+
+        return multiThreadCheck(happenBeforeGraph, configuration);
+    }
+
     public List<String> filter(String filename) throws Exception {
         BufferedReader br = new BufferedReader(new FileReader(new File(filename)));
         List<String> result = new LinkedList<String>();
@@ -249,7 +256,6 @@ public class VisearchChecker {
     }
 
     public String measureVisibility(String filename) throws Exception {
-        int states = 0;
         for (int i = 0; i < 6; i++) {
             boolean result = testTrace(filename, VisibilityType.values()[i]);
             if (result) {

@@ -1,7 +1,9 @@
 /out/
 /target/
 checker/target/
+checker/.idea
 /commons-lang3-3.10/
+*DS_Store
 *.trc
 *.obj
 *.json

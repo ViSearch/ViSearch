@@ -45,6 +45,10 @@ public class Invocation implements Serializable {
         this.retValues = retValues;
     }
 
+    public List<Object> getRetValues() {
+        return retValues;
+    }
+
     public void setMethodName(String name) {
         methodName = name;
     }
@@ -104,7 +108,7 @@ public class Invocation implements Serializable {
 
     @Override
     public String toString() {
-        return methodName + ":" + arguments.toString() + ":" + retValue;
+        return methodName + ":" + arguments + ":" + retValues;
     }
 
 //    public Invocation clone() {

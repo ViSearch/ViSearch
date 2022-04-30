@@ -134,7 +134,6 @@ public class MinimalVisSearch {
                }
             }
         }
-        //System.out.println(stateExplored);
         finish = true;
         return false;
     }
@@ -151,14 +150,30 @@ public class MinimalVisSearch {
     }
 
     private boolean executeCheck(AbstractDataType adt, SearchState searchState) {
-        boolean excuteResult = crdtExecute(adt, searchState);
+        boolean excuteResult = jepsenExecute(adt, searchState);
         if (configuration.isEnableOutputSchedule()) {
             HBGNode lastOperation = searchState.getLinearization().getLast();
             if (searchState.getLinearization().size() % 10 == 0) {
                 System.out.println(Thread.currentThread().getName() + ":" + lastOperation.toString() + " + " + searchState.getLinearization().size() + "/" + happenBeforeGraph.size() + "--" + searchState.getQueryOperationSize());
             }
         }
+        adt.reset();
         return excuteResult;
+    }
+
+    private boolean jepsenExecute(AbstractDataType adt, SearchState searchState) {
+        Linearization lin = searchState.getLinearization();
+        LinVisibility visibility = searchState.getVisibility();
+        HBGNode lastNode = lin.getLast();
+        for (HBGNode node : lin) {
+            Set<HBGNode> vis = visibility.getNodeVisibility(lastNode);
+            if (vis.contains(node)) {
+                if (!adt.step(node.getInvocation())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private boolean crdtExecute(AbstractDataType adt, SearchState searchState) {

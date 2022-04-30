@@ -6,9 +6,46 @@ import traceprocessing.Record;
 import datatype.OperationTypes.OPERATION_TYPE;
 
 import java.util.HashSet;
+import java.util.List;
 
 public class RiakSet extends AbstractDataType {
-    private HashSet<Integer> data = new HashSet<>();
+    private HashSet<Long> data = new HashSet<>();
+
+    @Override
+    public boolean step(Invocation invocation) {
+        switch (invocation.getMethodName()) {
+            case "add": {
+                Long key = (Long) invocation.getArguments().get(0);
+                data.add(key);
+                return true;
+            }
+            case "rem": {
+                Long key = (Long) invocation.getArguments().get(0);
+                data.remove(key);
+                return true;
+            }
+            case "contains": {
+                Long key = (Long) invocation.getArguments().get(0);
+                Boolean flag = data.contains(key);
+                if (invocation.getRetValues().size() == 0 || (Long) invocation.getRetValues().get(0) == 0) {
+                    return !flag;
+                } else {
+                    return flag;
+                }
+            }
+            case "size": {
+                Integer sz = data.size();
+                if (invocation.getRetValues().size() == 0) {
+                    return sz == 0;
+                } else {
+                    return sz == invocation.getRetValues().get(0);
+                }
+            }
+            default:
+                System.out.println("Wrong Operation");
+        }
+        return false;
+    }
 
     @Override
     public String excute(Invocation invocation) throws Exception {
@@ -52,7 +89,7 @@ public class RiakSet extends AbstractDataType {
             if (src.getId() == dest.getId()) {
                 return true;
             }
-            Integer ele = (Integer) src.getArguments().get(0);
+            Long ele = (Long) src.getArguments().get(0);
             if (dest.getOperationType() == OPERATION_TYPE.UPDATE && dest.getArguments().get(0).equals(ele)) {
                 return true;
             }
@@ -63,10 +100,12 @@ public class RiakSet extends AbstractDataType {
     @Override
     public boolean isDummyOperation(HBGNode node) {
         Invocation invocation = node.getInvocation();
-        if (invocation.getMethodName().equals("size") && invocation.getRetValue().equals("0")) {
+        if (invocation.getMethodName().equals("size") && (invocation.getRetValues().size() == 0 || (Long) invocation.getRetValues().get(0) == 0
+                || (invocation.getRetValue() != null && invocation.getRetValue().equals("0")))) {
             return true;
         }
-        if (invocation.getMethodName().equals("contains") && invocation.getRetValue().equals("false")) {
+        if (invocation.getMethodName().equals("contains") && (invocation.getRetValues().size() == 0 || (Long) invocation.getRetValues().get(0) == 0
+                || (invocation.getRetValue() != null && invocation.getRetValue().equals("false")))) {
             return true;
         }
         return false;
@@ -83,11 +122,11 @@ public class RiakSet extends AbstractDataType {
         invocation.setOperationType(getOperationType(record.getOperationName()));
 
         if (record.getOperationName().equals("add")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+            invocation.addArguments(Long.parseLong(record.getArgument(0)));
         } else if (record.getOperationName().equals("remove")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+            invocation.addArguments(Long.parseLong(record.getArgument(0)));
         } else if (record.getOperationName().equals("contains")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+            invocation.addArguments(Long.parseLong(record.getArgument(0)));
         } else if (record.getOperationName().equals("size")) {
            ;
         } else {
@@ -101,19 +140,19 @@ public class RiakSet extends AbstractDataType {
     }
 
     public String add(Invocation invocation) {
-        Integer key = (Integer) invocation.getArguments().get(0);
+        Long key = (Long) invocation.getArguments().get(0);
         data.add(key);
         return "null";
     }
 
     public String remove(Invocation invocation) {
-        Integer key = (Integer) invocation.getArguments().get(0);
+        Long key = (Long) invocation.getArguments().get(0);
         data.remove(key);
         return "null";
     }
 
     public String contains(Invocation invocation) {
-        Integer key = (Integer) invocation.getArguments().get(0);
+        Long key = (Long) invocation.getArguments().get(0);
         if (data.contains(key)) {
             return "true";
         } else {
@@ -122,6 +161,6 @@ public class RiakSet extends AbstractDataType {
     }
 
     public String size(Invocation invocation) {
-        return Integer.toString(data.size());
+        return Long.toString(data.size());
     }
 }

@@ -1,11 +1,16 @@
 package checking;
 
+import clojure.lang.Iterate;
+import clojure.lang.PersistentArrayMap;
+import clojure.lang.PersistentVector;
 import datatype.AbstractDataType;
 import datatype.DataTypeFactory;
 import history.HappenBeforeGraph;
 import history.Program;
 import history.VisibilityType;
 import traceprocessing.JepsenHistoryProcessor;
+
+import java.util.Map;
 
 public class JChecker extends VisearchChecker {
     public JChecker(String adt) {
@@ -16,6 +21,11 @@ public class JChecker extends VisearchChecker {
         HappenBeforeGraph happenBeforeGraph = load(history);
 //        System.out.println(happenBeforeGraph);
         return check(happenBeforeGraph);
+    }
+
+    public String visCheckForJepsen(PersistentVector history) {
+        HappenBeforeGraph happenBeforeGraph = new JepsenHistoryProcessor().transformHistory(history);
+        return "check(happenBeforeGraph)";
     }
 
     protected HappenBeforeGraph load(String history) {

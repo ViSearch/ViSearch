@@ -99,14 +99,6 @@ public class RiakMap extends AbstractDataType {
         data = new HashMap<>();
     }
 
-    public void print() {
-        System.out.println(data.toString());
-    }
-
-    public int hashCode() {
-        return data.hashCode();
-    }
-
     public AbstractDataType createInstance() {
         return new RiakMap();
     }

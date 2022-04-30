@@ -50,13 +50,7 @@ public abstract class AbstractDataType {
 
     public abstract void reset();
 
-    public abstract void print();
-
-    public abstract int hashCode();
-
     public abstract Invocation generateInvocation(Record record);
-
-    public abstract AbstractDataType createInstance();
 
     public abstract OPERATION_TYPE getOperationType(String methodName);
 }

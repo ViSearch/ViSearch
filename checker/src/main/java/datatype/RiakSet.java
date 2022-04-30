@@ -76,14 +76,6 @@ public class RiakSet extends AbstractDataType {
         data = new HashSet<>();
     }
 
-    public void print() {
-        System.out.println(data.toString());
-    }
-
-    public int hashCode() {
-        return data.hashCode();
-    }
-
     public Invocation generateInvocation(Record record) {
         Invocation invocation = new Invocation();
         invocation.setRetValue(record.getRetValue());

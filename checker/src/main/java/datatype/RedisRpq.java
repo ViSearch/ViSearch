@@ -7,6 +7,7 @@ import datatype.OperationTypes.OPERATION_TYPE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class RedisRpq extends AbstractDataType {
@@ -65,7 +66,7 @@ public class RedisRpq extends AbstractDataType {
                     return true;
                 } 
             }
-        } 
+        }
         return false;
     }
 
@@ -117,16 +118,11 @@ public class RedisRpq extends AbstractDataType {
         return false;
     }
 
-    public int hashCode() {
-        return data.hashCode();
-    }
-
     @Override
     public void reset() {
         map = new HashMap<>();
         data = new ArrayList<>();
     }
-    public void print() {;}
 
     private void shiftUp(int s) {
         int j = s, i = (j - 1) / 2;

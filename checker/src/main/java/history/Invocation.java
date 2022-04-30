@@ -20,6 +20,8 @@ public class Invocation implements Serializable {
     @JSONField(name = "RETVALUE", ordinal = 3)
     private String retValue;
 
+    private List<Object> retValues = new ArrayList<>();
+
     private transient int id;
     private transient int threadId;
     @JSONField(serialize=false)
@@ -37,6 +39,10 @@ public class Invocation implements Serializable {
 
     public String getRetValue() {
         return retValue;
+    }
+
+    public void setRetValues(List<Object> retValues) {
+        this.retValues = retValues;
     }
 
     public void setMethodName(String name) {

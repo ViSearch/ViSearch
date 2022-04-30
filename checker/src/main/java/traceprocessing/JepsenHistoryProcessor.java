@@ -1,6 +1,8 @@
 package traceprocessing;
 
 import checking.JChecker;
+import clojure.lang.PersistentArrayMap;
+import clojure.lang.PersistentVector;
 import datatype.RedisRpq;
 import history.HBGNode;
 import history.HappenBeforeGraph;
@@ -32,8 +34,60 @@ public class JepsenHistoryProcessor extends TraceProcessor {
                 }
             }
             rawTrace.add(records);
-//            System.out.println(records);
         }
+    }
+
+    public HappenBeforeGraph transformHistory(PersistentVector history) {
+        List<List<JepsenOperation>> jepsenHistory = new ArrayList<>(16);
+        for (int i = 0; i < history.length(); i++) {
+            PersistentArrayMap invocationFromJepsen = (PersistentArrayMap) history.get(i);
+            JepsenOperation jepsenOperation = parse(invocationFromJepsen);
+            while (jepsenHistory.size() <= jepsenOperation.process) {
+                jepsenHistory.add(new ArrayList<>());
+            }
+            jepsenHistory.get(jepsenOperation.process).add(jepsenOperation);
+        }
+
+        List<List<Invocation>> program = new ArrayList<>();
+        for (List<JepsenOperation> jepsenOperationList : jepsenHistory) {
+            List<Invocation> subProgram = new ArrayList<>();
+            for (int i = 0; i < jepsenOperationList.size(); i = i + 2) {
+                Invocation invocation = generateInvocation(jepsenOperationList.get(i), jepsenOperationList.get(i + 1));
+                subProgram.add(invocation);
+            }
+            program.add(subProgram);
+        }
+        return new HappenBeforeGraph(new Program(program));
+    }
+
+    protected JepsenOperation parse(PersistentArrayMap invocationFromJepsen) {
+            String type = (String)invocationFromJepsen.get(":invoke");
+            String methodName = (String)invocationFromJepsen.get(":f");
+            PersistentVector values = (PersistentVector)invocationFromJepsen.get(":value");
+            Integer process = (Integer)invocationFromJepsen.get(":process");
+            Integer index = (Integer)invocationFromJepsen.get(":index");
+            JepsenOperation jepsenOperation = new JepsenOperation();
+            jepsenOperation.type = type;
+            jepsenOperation.methodName = methodName;
+            jepsenOperation.process = process;
+            jepsenOperation.index = index;
+            jepsenOperation.arguments.addAll(values);
+            return jepsenOperation;
+    }
+
+    private Invocation generateInvocation(JepsenOperation invoke, JepsenOperation ok) {
+        if (ok.type.equals("fail")) {
+            return null;
+        }
+        Invocation invocation = new Invocation();
+        invocation.setMethodName(invoke.methodName);
+        if (invoke.arguments != null) {
+            for (Object o : invoke.arguments) {
+                invocation.addArguments(o);
+            }
+        }
+        invocation.setRetValues(ok.arguments);
+        return invocation;
     }
 
     private Record generateRecord(JepsenOperation invoke, JepsenOperation ok) {
@@ -106,6 +160,8 @@ class JepsenOperation {
     public String type;
     public String methodName;
     public List<String> values = new ArrayList<>();
+
+    public List<Object> arguments = new ArrayList<>();
     public int process;
     public int index;
 

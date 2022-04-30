@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class JChecker extends VisearchChecker {
     public JChecker(String adt) {
-        super(adt, 1);
+        super(adt, 1, false);
     }
 
     public String visCheck(String history) {
@@ -25,7 +25,7 @@ public class JChecker extends VisearchChecker {
 
     public String visCheckForJepsen(PersistentVector history) {
         HappenBeforeGraph happenBeforeGraph = new JepsenHistoryProcessor().transformHistory(history);
-        return "check(happenBeforeGraph)";
+        return check(happenBeforeGraph);
     }
 
     protected HappenBeforeGraph load(String history) {

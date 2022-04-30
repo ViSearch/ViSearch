@@ -1,6 +1,8 @@
 package traceprocessing;
 
 import checking.JChecker;
+import clojure.java.api.Clojure;
+import clojure.lang.Keyword;
 import clojure.lang.PersistentArrayMap;
 import clojure.lang.PersistentVector;
 import datatype.RedisRpq;
@@ -22,7 +24,7 @@ public class JepsenHistoryProcessor extends TraceProcessor {
             while (jepsenHistory.size() <= jepsenOperation.process) {
                 jepsenHistory.add(new ArrayList<>());
             }
-            jepsenHistory.get(jepsenOperation.process).add(jepsenOperation);
+            jepsenHistory.get(jepsenOperation.process.intValue()).add(jepsenOperation);
         }
 
         for (List<JepsenOperation> jepsenOperationList : jepsenHistory) {
@@ -45,7 +47,7 @@ public class JepsenHistoryProcessor extends TraceProcessor {
             while (jepsenHistory.size() <= jepsenOperation.process) {
                 jepsenHistory.add(new ArrayList<>());
             }
-            jepsenHistory.get(jepsenOperation.process).add(jepsenOperation);
+            jepsenHistory.get(jepsenOperation.process.intValue()).add(jepsenOperation);
         }
 
         List<List<Invocation>> program = new ArrayList<>();
@@ -53,26 +55,31 @@ public class JepsenHistoryProcessor extends TraceProcessor {
             List<Invocation> subProgram = new ArrayList<>();
             for (int i = 0; i < jepsenOperationList.size(); i = i + 2) {
                 Invocation invocation = generateInvocation(jepsenOperationList.get(i), jepsenOperationList.get(i + 1));
-                subProgram.add(invocation);
+                if (invocation != null) {
+                    subProgram.add(invocation);
+                }
             }
             program.add(subProgram);
+            System.out.println(subProgram);
         }
         return new HappenBeforeGraph(new Program(program));
     }
 
     protected JepsenOperation parse(PersistentArrayMap invocationFromJepsen) {
-            String type = (String)invocationFromJepsen.get(":invoke");
-            String methodName = (String)invocationFromJepsen.get(":f");
-            PersistentVector values = (PersistentVector)invocationFromJepsen.get(":value");
-            Integer process = (Integer)invocationFromJepsen.get(":process");
-            Integer index = (Integer)invocationFromJepsen.get(":index");
-            JepsenOperation jepsenOperation = new JepsenOperation();
-            jepsenOperation.type = type;
-            jepsenOperation.methodName = methodName;
-            jepsenOperation.process = process;
-            jepsenOperation.index = index;
-            jepsenOperation.arguments.addAll(values);
-            return jepsenOperation;
+        JepsenOperation jepsenOperation = new JepsenOperation();
+        jepsenOperation.type = ((Keyword)invocationFromJepsen.valAt(Keyword.intern(null,"type"))).getName();
+        jepsenOperation.methodName = ((Keyword)invocationFromJepsen.valAt(Keyword.intern(null,"f"))).getName();
+        jepsenOperation.process = (Long)invocationFromJepsen.valAt(Keyword.intern(null,"process"));
+        jepsenOperation.index = (Long)invocationFromJepsen.valAt(Keyword.intern(null,"index"));
+        Object value = invocationFromJepsen.valAt(Keyword.intern(null,"value"), new ArrayList<>());
+        if (value != null) {
+            if (value instanceof PersistentVector) {
+                jepsenOperation.arguments.addAll((PersistentVector) value);
+            } else {
+                jepsenOperation.arguments.add(value);
+            }
+        }
+        return jepsenOperation;
     }
 
     private Invocation generateInvocation(JepsenOperation invoke, JepsenOperation ok) {
@@ -140,10 +147,10 @@ public class JepsenHistoryProcessor extends TraceProcessor {
                 }
             } else if (i == 4) {
                 int space = terms[i].lastIndexOf(' ');
-                operation.process = Integer.parseInt(terms[i].substring(space + 1));
+                operation.process = Long.parseLong(terms[i].substring(space + 1));
             } else if (i == 5) {
                 int space = terms[i].lastIndexOf(' ');
-                operation.index = Integer.parseInt(terms[i].substring(space + 1));
+                operation.index = Long.parseLong(terms[i].substring(space + 1));
             }
         }
         return operation;
@@ -162,8 +169,8 @@ class JepsenOperation {
     public List<String> values = new ArrayList<>();
 
     public List<Object> arguments = new ArrayList<>();
-    public int process;
-    public int index;
+    public Long process;
+    public Long index;
 
     public String toString() {
         String result = "";
@@ -175,8 +182,8 @@ class JepsenOperation {
             result += value + " ";
         }
         result += ", ";
-        result += ":process " + Integer.toString(process);
-        result += ", :index " + Integer.toString(index);
+        result += ":process " + process;
+        result += ", :index " + index;
         return result;
     }
 }

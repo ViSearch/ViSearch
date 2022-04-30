@@ -15,6 +15,8 @@ public abstract class AbstractDataType {
 
     public abstract String excute(Invocation invocation) throws Exception;
 
+    public abstract boolean step(Invocation invocation);
+
     public List<List<HBGNode>> getRelatedOperations(HBGNode node, HappenBeforeGraph happenBeforeGraph) {
         List<List<HBGNode>> lists = new ArrayList<>();
         for (HBGNode startNode : happenBeforeGraph.getStartNodes()) {
@@ -44,9 +46,13 @@ public abstract class AbstractDataType {
         }
     }
 
-    public abstract boolean isDummyOperation(HBGNode node);
+    public boolean isDummyOperation(HBGNode node) {
+        return false;
+    }
 
-    protected abstract boolean isRelated(Invocation src, Invocation dest);
+    protected boolean isRelated(Invocation src, Invocation dest) {
+        return false;
+    }
 
     public abstract void reset();
 

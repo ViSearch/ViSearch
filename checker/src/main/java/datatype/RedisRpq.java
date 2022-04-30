@@ -5,14 +5,54 @@ import history.Invocation;
 import traceprocessing.Record;
 import datatype.OperationTypes.OPERATION_TYPE;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class RedisRpq extends AbstractDataType {
     private ArrayList<RpqElement> data = new ArrayList<>();
     private HashMap<Integer, RpqElement> map = new HashMap<>();
+
+    @Override
+    public boolean step(Invocation invocation) {
+        switch (invocation.getMethodName()) {
+            case "add": {
+                Integer key = (Integer) invocation.getArguments().get(0);
+                Integer value = (Integer) invocation.getArguments().get(1);
+                add(key, value);
+                return true;
+            }
+            case "incrby": {
+                Integer key = (Integer) invocation.getArguments().get(0);
+                Long delta = (Long) invocation.getArguments().get(1);
+                inc(key, delta.intValue());
+                return true;
+            }
+            case "rem": {
+                Integer key = (Integer) invocation.getArguments().get(0);
+                rem(key);
+                return true;
+            }
+            case "score": {
+                Integer key = (Integer) invocation.getArguments().get(0);
+                Integer value = getValue(key);
+                if (invocation.getRetValues().size() == 0) {
+                    return value == null;
+                } else {
+                    return value == invocation.getRetValues().get(0);
+                }
+            }
+            case "max": {
+                List<Integer> result = getMaximumElement();
+                if (result.size() == 0) {
+                    return invocation.getRetValues().size() == 0;
+                } else {
+                    return invocation.getRetValues().get(0) == result.get(0) && invocation.getRetValues().get(1) == result.get(1);
+                }
+            }
+            default:
+                System.out.println("Wrong Operation");
+        }
+        return false;
+    }
 
     @Override
     public String excute(Invocation invocation) throws Exception {
@@ -56,12 +96,12 @@ public class RedisRpq extends AbstractDataType {
                 return true;
             }
             if (src.getMethodName().equals("score")) {
-                Integer ele = (Integer) src.getArguments().get(0);
+                Long ele = (Long) src.getArguments().get(0);
                 if (dest.getOperationType() == OPERATION_TYPE.UPDATE && dest.getArguments().get(0).equals(ele)) {
                     return true;
                 } 
             } else if (src.getMethodName().equals("max")) {
-                Integer ele = Integer.parseInt(src.getRetValue().split(" ")[0]);
+                Long ele = Long.parseLong(src.getRetValue().split(" ")[0]);
                 if (dest.getOperationType() == OPERATION_TYPE.UPDATE && dest.getArguments().get(0).equals(ele)) {
                     return true;
                 } 
@@ -88,17 +128,17 @@ public class RedisRpq extends AbstractDataType {
         invocation.setOperationType(getOperationType(record.getOperationName()));
 
         if (record.getOperationName().equals("add")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-            invocation.addArguments(Integer.parseInt(record.getArgument(1)));
+            invocation.addArguments(Long.parseLong(record.getArgument(0)));
+            invocation.addArguments(Long.parseLong(record.getArgument(1)));
         } else if (record.getOperationName().equals("rem")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+            invocation.addArguments(Long.parseLong(record.getArgument(0)));
         } else if (record.getOperationName().equals("incrby")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-            invocation.addArguments(Integer.parseInt(record.getArgument(1)));
+            invocation.addArguments(Long.parseLong(record.getArgument(0)));
+            invocation.addArguments(Long.parseLong(record.getArgument(1)));
         } else if (record.getOperationName().equals("max")) {
             ;
         } else if (record.getOperationName().equals("score")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+            invocation.addArguments(Long.parseLong(record.getArgument(0)));
         } else {
             System.out.println("Unknown operation");
         }
@@ -109,10 +149,12 @@ public class RedisRpq extends AbstractDataType {
     @Override
     public boolean isDummyOperation(HBGNode node) {
         Invocation invocation = node.getInvocation();
-        if (invocation.getMethodName().equals("max") && invocation.getRetValue().equals("null")) {
+        if (invocation.getMethodName().equals("max") && (invocation.getRetValues().size() == 0 ||
+                (invocation.getRetValue() != null && invocation.getRetValue().equals("null")))) {
             return true;
         }
-        if (invocation.getMethodName().equals("score") && invocation.getRetValue().equals("null")) {
+        if (invocation.getMethodName().equals("score") && (invocation.getRetValues().size() == 0 ||
+                (invocation.getRetValue() != null && invocation.getRetValue().equals("null")))) {
             return true;
         }
         return false;
@@ -143,7 +185,7 @@ public class RedisRpq extends AbstractDataType {
         data.set(j, temp);
     }
 
-    private void shiftDown(int s)
+    private void shiftDown(Integer s)
     {
         int i = s, j = 2 * i + 1, tail = data.size() - 1;
         RpqElement temp;
@@ -169,7 +211,7 @@ public class RedisRpq extends AbstractDataType {
         data.set(i, temp);
     }
 
-    private void add(int k, Integer v)
+    private void add(Integer k, Integer v)
     {
         if (!map.containsKey(k)) {
             RpqElement element = new RpqElement(k, v);
@@ -185,19 +227,19 @@ public class RedisRpq extends AbstractDataType {
         }
     }
 
-    private void rem(int k)
+    private void rem(Integer k)
     {
         if (map.containsKey(k))
         {
-            int i = map.get(k).getIndex();
+            Integer i = map.get(k).getIndex();
             map.remove(k);
-            data.set(i, data.get(data.size() - 1));
+            data.set(i.intValue(), data.get(data.size() - 1));
             data.remove(data.size() - 1);
             shiftDown(i);
         }
     }
 
-    private void inc(int k, int i)
+    private void inc(Integer k, Integer i)
     {
         if (i == 0)
             return;
@@ -217,6 +259,20 @@ public class RedisRpq extends AbstractDataType {
         }
     }
 
+    private List<Integer> getMaximumElement() {
+        List<Integer> result = new ArrayList<>(2);
+        if (data.size() == 0) {
+            return result;
+        } else {
+            RpqElement max = data.get(0);
+            Integer val = max.getVal();
+            Integer ele = max.getEle();
+            result.add(ele);
+            result.add(val);
+            return result;
+        }
+    }
+
     private String max()
     {
         if (data.size() == 0) {
@@ -229,6 +285,15 @@ public class RedisRpq extends AbstractDataType {
             //return "rwfzmax:" + Integer.toString(max.getEle()) + ":" + val.stripTrailingZeros().toPlainString();
             //return ele.toString() + " " + val.toString();
             return ele.toString() + " " + val.toString();
+        }
+    }
+
+    private Integer getValue(Integer k) {
+        if (data.size() == 0 || !map.containsKey(k)) {
+            return null;
+        } else {
+            Integer val = map.get(k).getVal();
+            return val;
         }
     }
 
@@ -330,7 +395,13 @@ class RpqElement {
         } else if (this.val > element.val) {
             return 1;
         } else {
-            return this.ele - element.ele;
+            if (this.ele == element.ele) {
+                return 0;
+            } else if (this.ele > element.ele) {
+                return 1;
+            } else {
+                return -1;
+            }
         }
     }
 

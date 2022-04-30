@@ -8,7 +8,48 @@ import datatype.OperationTypes.OPERATION_TYPE;
 import java.util.*;
 
 public class RiakMap extends AbstractDataType {
-    private HashMap<Integer, Integer> data = new HashMap<>();
+    private HashMap<Long, Long> data = new HashMap<>();
+
+    @Override
+    public boolean step(Invocation invocation) {
+        switch (invocation.getMethodName()) {
+            case "put": {
+                Long key = (Long) invocation.getArguments().get(0);
+                Long value = (Long) invocation.getArguments().get(1);
+                data.put(key, value);
+                return true;
+            }
+            case "get": {
+                Long key = (Long) invocation.getArguments().get(0);
+                Long value = data.get(key);
+                if (invocation.getRetValues().size() == 0) {
+                    return value == null;
+                } else {
+                    return value == invocation.getRetValues().get(0);
+                }
+            }
+            case "containsValue": {
+                Long value = (Long) invocation.getArguments().get(0);
+                Boolean flag = data.containsValue(value);
+                if (invocation.getRetValues().size() == 0 || (Long) invocation.getRetValues().get(0) == 0) {
+                    return !flag;
+                } else {
+                    return flag;
+                }
+            }
+            case "size": {
+                Long sz = (long)data.size();
+                if (invocation.getRetValues().size() == 0) {
+                    return sz == 0;
+                } else {
+                    return sz == invocation.getRetValues().get(0);
+                }
+            }
+            default:
+                System.out.println("Wrong Operation");
+        }
+        return false;
+    }
 
     @Override
     public String excute(Invocation invocation) throws Exception {
@@ -53,7 +94,7 @@ public class RiakMap extends AbstractDataType {
                 if (src.getId() == dest.getId()) {
                     return true;
                 }
-                Integer key = (Integer) src.getArguments().get(0);
+                Long key = (Long) src.getArguments().get(0);
                 if (dest.getMethodName().equals("put") && dest.getArguments().get(0).equals(key)) {
                     return true;
                 } 
@@ -69,12 +110,12 @@ public class RiakMap extends AbstractDataType {
         invocation.setOperationType(getOperationType(record.getOperationName()));
 
         if (record.getOperationName().equals("put")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-            invocation.addArguments(Integer.parseInt(record.getArgument(1)));
+            invocation.addArguments(Long.parseLong(record.getArgument(0)));
+            invocation.addArguments(Long.parseLong(record.getArgument(1)));
         } else if (record.getOperationName().equals("get")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+            invocation.addArguments(Long.parseLong(record.getArgument(0)));
         } else if (record.getOperationName().equals("containsValue")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+            invocation.addArguments(Long.parseLong(record.getArgument(0)));
         } else if (record.getOperationName().equals("size")) {
             ;
         } else {
@@ -104,24 +145,24 @@ public class RiakMap extends AbstractDataType {
     }
 
     public String put(Invocation invocation) {
-        Integer key = (Integer) invocation.getArguments().get(0);
-        Integer value = (Integer) invocation.getArguments().get(1);
+        Long key = (Long) invocation.getArguments().get(0);
+        Long value = (Long) invocation.getArguments().get(1);
         data.put(key, value);
         return "null";
     }
 
     public String get(Invocation invocation) {
-        Integer key = (Integer) invocation.getArguments().get(0);
-        Integer value = data.get(key);
+        Long key = (Long) invocation.getArguments().get(0);
+        Long value = data.get(key);
         if (value != null) {
-            return Integer.toString(value);
+            return Long.toString(value);
         } else {
             return "null";
         }
     }
 
     public String containsValue(Invocation invocation) {
-        Integer value = (Integer) invocation.getArguments().get(0);
+        Long value = (Long) invocation.getArguments().get(0);
         if (data.containsValue(value)) {
             return "true";
         } else {
@@ -130,6 +171,6 @@ public class RiakMap extends AbstractDataType {
     }
 
     public String size(Invocation invocation) {
-        return Integer.toString(data.size());
+        return Long.toString(data.size());
     }
 }

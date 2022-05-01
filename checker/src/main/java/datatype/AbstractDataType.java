@@ -3,17 +3,11 @@ package datatype;
 import history.HBGNode;
 import history.HappenBeforeGraph;
 import history.Invocation;
-import history.loader.PlainOperation;
-import datatype.OperationTypes.OPERATION_TYPE;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractDataType {
-    protected OperationTypes operationTypes = null;
-
-    public abstract String excute(Invocation invocation) throws Exception;
-
     public abstract boolean step(Invocation invocation);
 
     public List<List<HBGNode>> getRelatedOperations(HBGNode node, HappenBeforeGraph happenBeforeGraph) {
@@ -38,11 +32,7 @@ public abstract class AbstractDataType {
     }
 
     public boolean isReadCluster(Invocation invocation) {
-        if (invocation.getOperationType() == OPERATION_TYPE.QUERY) {
-            return true;
-        } else {
-            return false;
-        }
+        return false;
     }
 
     public boolean isDummyOperation(HBGNode node) {
@@ -54,8 +44,4 @@ public abstract class AbstractDataType {
     }
 
     public abstract void reset();
-
-    public abstract Invocation generateInvocation(PlainOperation record);
-
-    public abstract OPERATION_TYPE getOperationType(String methodName);
 }

@@ -54,57 +54,41 @@ public class RedisRpq extends AbstractDataType {
         return false;
     }
 
-    @Override
-    public String excute(Invocation invocation) throws Exception {
-        String methodName = invocation.getMethodName();
-        if (methodName.equals("add")) {
-            return add(invocation);
-        } else if (methodName.equals("rem")) {
-            return rem(invocation);
-        } else if (methodName.equals("incrby")) {
-            return incrby(invocation);
-        } else if (methodName.equals("score")) {
-            return score(invocation);
-        } else if (methodName.equals("max")) {
-            return max(invocation);
-        } else {
-            throw new Exception("Wrong operation: " + methodName);
-        }
-    }
-
-    public AbstractDataType createInstance() {
-        return new RedisRpq();
-    }
-
-    public OPERATION_TYPE getOperationType(String methodName) {
-        if (operationTypes == null) {
-            operationTypes = new OperationTypes();
-            operationTypes.setOperationType("rem", OPERATION_TYPE.UPDATE);
-            operationTypes.setOperationType("add", OPERATION_TYPE.UPDATE);
-            operationTypes.setOperationType("incrby", OPERATION_TYPE.UPDATE);
-            operationTypes.setOperationType("max", OPERATION_TYPE.QUERY);
-            operationTypes.setOperationType("score", OPERATION_TYPE.QUERY);
-            return operationTypes.getOperationType(methodName);
-        } else {
-            return operationTypes.getOperationType(methodName);
-        }
-    }
+//    @Override
+//    public String excute(Invocation invocation) throws Exception {
+//        String methodName = invocation.getMethodName();
+//        if (methodName.equals("add")) {
+//            return add(invocation);
+//        } else if (methodName.equals("rem")) {
+//            return rem(invocation);
+//        } else if (methodName.equals("incrby")) {
+//            return incrby(invocation);
+//        } else if (methodName.equals("score")) {
+//            return score(invocation);
+//        } else if (methodName.equals("max")) {
+//            return max(invocation);
+//        } else {
+//            throw new Exception("Wrong operation: " + methodName);
+//        }
+//    }
 
     protected boolean isRelated(Invocation src, Invocation dest) {
-        if (src.getOperationType() == OPERATION_TYPE.QUERY) {
+        if (src.isQuery()) {
             if (src.getId() == dest.getId()) {
                 return true;
             }
             if (src.getMethodName().equals("score")) {
                 Integer ele = (Integer) src.getArguments().get(0);
-                if (dest.getOperationType() == OPERATION_TYPE.UPDATE && dest.getArguments().get(0).equals(ele)) {
+                if (dest.isUpdate() && dest.getArguments().get(0).equals(ele)) {
                     return true;
                 } 
             } else if (src.getMethodName().equals("max")) {
-                Integer ele = Integer.parseInt(src.getRetValue().split(" ")[0]);
-                if (dest.getOperationType() == OPERATION_TYPE.UPDATE && dest.getArguments().get(0).equals(ele)) {
-                    return true;
-                } 
+                if (src.getRetValues().size() > 0) {
+                    Integer ele = (Integer) src.getRetValues().get(0);
+                    if (dest.isUpdate() && dest.getArguments().get(0).equals(ele)) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -115,46 +99,44 @@ public class RedisRpq extends AbstractDataType {
         if (invocation.getMethodName().equals("score")) {
             return true;
         }
-        if (invocation.getMethodName().equals("max") && !invocation.getRetValue().equals("null")) {
+        if (invocation.getMethodName().equals("max") && invocation.getRetValues().size() > 0) {
             return true;
         }
         return false;
     }
 
-    public Invocation generateInvocation(PlainOperation record) {
-        Invocation invocation = new Invocation();
-        invocation.setRetValue(record.getRetValue());
-        invocation.setMethodName(record.getOperationName());
-        invocation.setOperationType(getOperationType(record.getOperationName()));
-
-        if (record.getOperationName().equals("add")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-            invocation.addArguments(Integer.parseInt(record.getArgument(1)));
-        } else if (record.getOperationName().equals("rem")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-        } else if (record.getOperationName().equals("incrby")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-            invocation.addArguments(Long.parseLong(record.getArgument(1)));
-        } else if (record.getOperationName().equals("max")) {
-            ;
-        } else if (record.getOperationName().equals("score")) {
-            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-        } else {
-            System.out.println("Unknown operation");
-        }
-
-        return invocation;
-    }
+//    public Invocation generateInvocation(PlainOperation record) {
+//        Invocation invocation = new Invocation();
+//        invocation.setRetValue(record.getRetValue());
+//        invocation.setMethodName(record.getOperationName());
+//        invocation.setOperationType(getOperationType(record.getOperationName()));
+//
+//        if (record.getOperationName().equals("add")) {
+//            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+//            invocation.addArguments(Integer.parseInt(record.getArgument(1)));
+//        } else if (record.getOperationName().equals("rem")) {
+//            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+//        } else if (record.getOperationName().equals("incrby")) {
+//            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+//            invocation.addArguments(Long.parseLong(record.getArgument(1)));
+//        } else if (record.getOperationName().equals("max")) {
+//            ;
+//        } else if (record.getOperationName().equals("score")) {
+//            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+//        } else {
+//            System.out.println("Unknown operation");
+//        }
+//
+//        return invocation;
+//    }
 
     @Override
     public boolean isDummyOperation(HBGNode node) {
         Invocation invocation = node.getInvocation();
-        if (invocation.getMethodName().equals("max") && (invocation.getRetValues().size() == 0 ||
-                (invocation.getRetValue() != null && invocation.getRetValue().equals("null")))) {
+        if (invocation.getMethodName().equals("max") && invocation.getRetValues().size() == 0) {
             return true;
         }
-        if (invocation.getMethodName().equals("score") && (invocation.getRetValues().size() == 0 ||
-                (invocation.getRetValue() != null && invocation.getRetValue().equals("null")))) {
+        if (invocation.getMethodName().equals("score") && invocation.getRetValues().size() == 0) {
             return true;
         }
         return false;

@@ -2,7 +2,7 @@ package datatype;
 
 import history.HBGNode;
 import history.Invocation;
-import traceprocessing.Record;
+import history.loader.PlainOperation;
 import datatype.OperationTypes.OPERATION_TYPE;
 
 import java.util.*;
@@ -45,7 +45,7 @@ public class RedisRpq extends AbstractDataType {
                 if (result.size() == 0) {
                     return invocation.getRetValues().size() == 0;
                 } else {
-                    return invocation.getRetValues().get(0) == result.get(0) && invocation.getRetValues().get(1) == result.get(1);
+                    return invocation.getRetValues().size() > 0 && invocation.getRetValues().get(0) == result.get(0) && invocation.getRetValues().get(1) == result.get(1);
                 }
             }
             default:
@@ -96,12 +96,12 @@ public class RedisRpq extends AbstractDataType {
                 return true;
             }
             if (src.getMethodName().equals("score")) {
-                Long ele = (Long) src.getArguments().get(0);
+                Integer ele = (Integer) src.getArguments().get(0);
                 if (dest.getOperationType() == OPERATION_TYPE.UPDATE && dest.getArguments().get(0).equals(ele)) {
                     return true;
                 } 
             } else if (src.getMethodName().equals("max")) {
-                Long ele = Long.parseLong(src.getRetValue().split(" ")[0]);
+                Integer ele = Integer.parseInt(src.getRetValue().split(" ")[0]);
                 if (dest.getOperationType() == OPERATION_TYPE.UPDATE && dest.getArguments().get(0).equals(ele)) {
                     return true;
                 } 
@@ -121,24 +121,24 @@ public class RedisRpq extends AbstractDataType {
         return false;
     }
 
-    public Invocation generateInvocation(Record record) {
+    public Invocation generateInvocation(PlainOperation record) {
         Invocation invocation = new Invocation();
         invocation.setRetValue(record.getRetValue());
         invocation.setMethodName(record.getOperationName());
         invocation.setOperationType(getOperationType(record.getOperationName()));
 
         if (record.getOperationName().equals("add")) {
-            invocation.addArguments(Long.parseLong(record.getArgument(0)));
-            invocation.addArguments(Long.parseLong(record.getArgument(1)));
+            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
+            invocation.addArguments(Integer.parseInt(record.getArgument(1)));
         } else if (record.getOperationName().equals("rem")) {
-            invocation.addArguments(Long.parseLong(record.getArgument(0)));
+            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
         } else if (record.getOperationName().equals("incrby")) {
-            invocation.addArguments(Long.parseLong(record.getArgument(0)));
+            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
             invocation.addArguments(Long.parseLong(record.getArgument(1)));
         } else if (record.getOperationName().equals("max")) {
             ;
         } else if (record.getOperationName().equals("score")) {
-            invocation.addArguments(Long.parseLong(record.getArgument(0)));
+            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
         } else {
             System.out.println("Unknown operation");
         }

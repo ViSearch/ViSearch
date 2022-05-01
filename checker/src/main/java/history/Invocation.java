@@ -2,43 +2,26 @@ package history;
 
 import datatype.OperationTypes.OPERATION_TYPE;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-public class Invocation implements Serializable {
-    @JSONField(name = "METHOD NAME", ordinal = 1)
+public class Invocation {
     private String methodName;
-    @JSONField(name = "ARGUMENTS", ordinal = 2)
-    private List<Object> arguments = new ArrayList<Object>();
-    @JSONField(name = "RETVALUE", ordinal = 3)
-    private String retValue;
+    private List<Object> arguments;
+    private List<Object> retValues;
 
-    private List<Object> retValues = new ArrayList<>();
-
-    private transient int id;
-    private transient int threadId;
-    @JSONField(serialize=false)
-    private transient Pair<Integer, Integer> pairID;
-    @JSONField(serialize=false)
-    private transient OPERATION_TYPE operationType = OPERATION_TYPE.UPDATE;
+    private int id;
+    private int threadId;
+    private Pair<Integer, Integer> pairID;
+    private OPERATION_TYPE operationType = OPERATION_TYPE.QUERY;
 
     public Invocation() {
-        ;
-    }
-
-    public void setRetValue(String retValue) {
-        this.retValue = retValue;
-    }
-
-    public String getRetValue() {
-        return retValue;
+        arguments = new ArrayList<Object>();
+        retValues = new ArrayList<>();
     }
 
     public void setRetValues(List<Object> retValues) {
@@ -51,10 +34,6 @@ public class Invocation implements Serializable {
 
     public void setMethodName(String name) {
         methodName = name;
-    }
-
-    public void setArguments(List<Object> arguments) {
-        this.arguments = arguments;
     }
 
     public void addArguments(Object object) {
@@ -110,14 +89,6 @@ public class Invocation implements Serializable {
     public String toString() {
         return methodName + ":" + arguments + ":" + retValues;
     }
-
-//    public Invocation clone() {
-//        Invocation invocation = new Invocation();
-//        invocation.setMethodName(this.getMethodName());
-//        invocation.setRetValue(this.getRetValue());
-//        invocation.setOperationType(this.getOperationType());
-//        invocation.id = id;
-//    }
 }
 
 

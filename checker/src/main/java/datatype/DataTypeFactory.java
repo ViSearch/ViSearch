@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class DataTypeFactory {
 
-    private Map<String, Class> factory;
+    private Map<String, Class> factory = new HashMap<>();
 
     private static DataTypeFactory instance = new DataTypeFactory();
 

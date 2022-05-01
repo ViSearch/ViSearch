@@ -1,14 +1,10 @@
 package rule;
 
 import checking.VisearchChecker;
-import datatype.DataTypeFactory;
-import history.HappenBeforeGraph;
 import history.Linearization;
 import com.google.common.collect.HashMultimap;
 import history.HBGNode;
-import traceprocessing.MyRawTraceProcessor;
 import util.NodePair;
-import validation.HBGPreprocessor;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,11 +1,10 @@
 package checking;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import history.VisibilityType;
 import datatype.DataTypeFactory;
 import history.HappenBeforeGraph;
 import rule.RuleTable;
-import traceprocessing.MyRawTraceProcessor;
+import history.loader.VisearchTraceFileLoader;
 import validation.*;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -17,10 +16,6 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static net.sourceforge.argparse4j.impl.Arguments.*;
 
@@ -122,7 +117,7 @@ public class VisearchChecker {
     }
 
     protected HappenBeforeGraph load(String filename) {
-        MyRawTraceProcessor rp = new MyRawTraceProcessor();
+        VisearchTraceFileLoader rp = new VisearchTraceFileLoader();
         HappenBeforeGraph happenBeforeGraph = rp.generateProgram(filename, DataTypeFactory.getInstance().getDataType(adt)).generateHappenBeforeGraph();
         return happenBeforeGraph;
     }

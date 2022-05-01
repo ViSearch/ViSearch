@@ -1,7 +1,6 @@
 package validation;
 
 import checking.VisearchChecker;
-import com.google.common.collect.Multimap;
 import history.VisibilityType;
 import com.google.common.collect.HashMultimap;
 import datatype.AbstractDataType;
@@ -9,12 +8,8 @@ import datatype.DataTypeFactory;
 import history.HBGNode;
 import history.HappenBeforeGraph;
 import rule.RuleTable;
-import traceprocessing.MyRawTraceProcessor;
-import util.IntPair;
 import util.NodePair;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.*;
 
 public class HBGPreprocessor {

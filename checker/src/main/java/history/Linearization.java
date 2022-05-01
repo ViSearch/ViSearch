@@ -31,13 +31,13 @@ public class Linearization implements Serializable, Iterable<HBGNode> {
         lin.add(node);
     }
 
-    public String getRetValueTrace(int index) {
-        ArrayList<String> retTrace = new ArrayList<>();
-        for (int i = 0; i < index; i++) {
-            retTrace.add(lin.get(i).getInvocation().getRetValue());
-        }
-        return  retTrace.toString();
-    }
+//    public String getRetValueTrace(int index) {
+//        ArrayList<String> retTrace = new ArrayList<>();
+//        for (int i = 0; i < index; i++) {
+//            retTrace.add(lin.get(i).getInvocation().getRetValue());
+//        }
+//        return  retTrace.toString();
+//    }
 
     public boolean contains(HBGNode node) {
         return contains(node.getId());

@@ -165,46 +165,45 @@ public class MinimalVisSearch {
         Linearization lin = searchState.getLinearization();
         LinVisibility visibility = searchState.getVisibility();
         HBGNode lastNode = lin.getLast();
-        for (HBGNode node : lin) {
+        for (int i = 0; i < lin.size() - 1; i++) {
             Set<HBGNode> vis = visibility.getNodeVisibility(lastNode);
+            HBGNode node = lin.get(i);
             if (vis.contains(node)) {
-                if (!adt.step(node.getInvocation())) {
-                    return false;
-                }
+                adt.step(node.getInvocation());
             }
         }
-        return true;
+        return adt.step(lastNode.getInvocation());
     }
 
-    private boolean crdtExecute(AbstractDataType adt, SearchState searchState) {
-        Linearization lin = searchState.getLinearization();
-        LinVisibility visibility = searchState.getVisibility();
-        try {
-            HBGNode lastNode = lin.getLast();
-            if (lastNode.getInvocation().getOperationType() == OperationTypes.OPERATION_TYPE.UPDATE) {
-                return true;
-            } else if (lastNode.getInvocation().getOperationType() == OperationTypes.OPERATION_TYPE.QUERY) {
-                Set<HBGNode> vis = visibility.getNodeVisibility(lastNode);
-                for (int i = 0; i < lin.size() - 1; i++) {
-                    HBGNode node = lin.get(i);
-                    if (node.getInvocation().getOperationType() == OperationTypes.OPERATION_TYPE.UPDATE && vis.contains(node)) {
-                        adt.excute(node.getInvocation());
-                    }
-                }
-                String ret = adt.excute(lastNode.getInvocation());
-                adt.reset();
-                if (lastNode.getInvocation().getRetValue().equals(ret)) {
-                    return true;
-                } else {
-//                    System.out.println(lastNode.getInvocation().toString() + " -- " + ret);
-                    return false;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+//    private boolean crdtExecute(AbstractDataType adt, SearchState searchState) {
+//        Linearization lin = searchState.getLinearization();
+//        LinVisibility visibility = searchState.getVisibility();
+//        try {
+//            HBGNode lastNode = lin.getLast();
+//            if (lastNode.getInvocation().getOperationType() == OperationTypes.OPERATION_TYPE.UPDATE) {
+//                return true;
+//            } else if (lastNode.getInvocation().getOperationType() == OperationTypes.OPERATION_TYPE.QUERY) {
+//                Set<HBGNode> vis = visibility.getNodeVisibility(lastNode);
+//                for (int i = 0; i < lin.size() - 1; i++) {
+//                    HBGNode node = lin.get(i);
+//                    if (node.getInvocation().getOperationType() == OperationTypes.OPERATION_TYPE.UPDATE && vis.contains(node)) {
+//                        adt.excute(node.getInvocation());
+//                    }
+//                }
+//                String ret = adt.excute(lastNode.getInvocation());
+//                adt.reset();
+//                if (lastNode.getInvocation().getRetValue().equals(ret)) {
+//                    return true;
+//                } else {
+////                    System.out.println(lastNode.getInvocation().toString() + " -- " + ret);
+//                    return false;
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+//    }
 
     private void handlePrickOperation(SearchState state) {
         if (!configuration.isEnablePrickOperation()) {

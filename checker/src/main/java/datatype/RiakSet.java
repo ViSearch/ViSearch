@@ -2,11 +2,10 @@ package datatype;
 
 import history.HBGNode;
 import history.Invocation;
-import traceprocessing.Record;
+import history.loader.PlainOperation;
 import datatype.OperationTypes.OPERATION_TYPE;
 
 import java.util.HashSet;
-import java.util.List;
 
 public class RiakSet extends AbstractDataType {
     private HashSet<Long> data = new HashSet<>();
@@ -115,7 +114,7 @@ public class RiakSet extends AbstractDataType {
         data = new HashSet<>();
     }
 
-    public Invocation generateInvocation(Record record) {
+    public Invocation generateInvocation(PlainOperation record) {
         Invocation invocation = new Invocation();
         invocation.setRetValue(record.getRetValue());
         invocation.setMethodName(record.getOperationName());

@@ -3,10 +3,9 @@ package datatype;
 import history.HBGNode;
 import history.HappenBeforeGraph;
 import history.Invocation;
-import traceprocessing.Record;
+import history.loader.PlainOperation;
 import datatype.OperationTypes.OPERATION_TYPE;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +55,7 @@ public abstract class AbstractDataType {
 
     public abstract void reset();
 
-    public abstract Invocation generateInvocation(Record record);
+    public abstract Invocation generateInvocation(PlainOperation record);
 
     public abstract OPERATION_TYPE getOperationType(String methodName);
 }

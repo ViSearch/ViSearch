@@ -2,7 +2,7 @@ package datatype;
 
 import history.HBGNode;
 import history.Invocation;
-import traceprocessing.Record;
+import history.loader.PlainOperation;
 import datatype.OperationTypes.OPERATION_TYPE;
 
 import java.util.*;
@@ -103,7 +103,7 @@ public class RiakMap extends AbstractDataType {
         return false;
     }
 
-    public Invocation generateInvocation(Record record) {
+    public Invocation generateInvocation(PlainOperation record) {
         Invocation invocation = new Invocation();
         invocation.setRetValue(record.getRetValue());
         invocation.setMethodName(record.getOperationName());

@@ -1,15 +1,35 @@
 package datatype;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DataTypeFactory {
+
+    private Map<String, Class> factory;
+
+    private static DataTypeFactory instance = new DataTypeFactory();
+
+    private DataTypeFactory() {
+        factory.put("set", RiakSet.class);
+        factory.put("map", RiakMap.class);
+        factory.put("rpq", RedisRpq.class);
+    }
+
+    public static DataTypeFactory getInstance() {
+        return instance;
+    }
+
     public AbstractDataType getDataType(String dataType) {
-        if (dataType.equals("set")) {
-            return new RiakSet();
-        } else if (dataType.equals("map")) {
-            return new RiakMap();
-        } else if (dataType.equals("rpq")) {
-            return new RedisRpq();
-        } else {
+        Class clazz = factory.get(dataType);
+        if (clazz == null)
+        {
             return null;
+        } else {
+            try {
+                return (AbstractDataType) clazz.newInstance();
+            } catch (Exception e) {
+                return null;
+            }
         }
     }
 }

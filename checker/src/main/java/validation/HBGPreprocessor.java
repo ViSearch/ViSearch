@@ -41,7 +41,7 @@ public class HBGPreprocessor {
     }
 
     public void preprocess(HappenBeforeGraph happenBeforeGraph, String dataType) {
-        AbstractDataType adt = new DataTypeFactory().getDataType(dataType);
+        AbstractDataType adt = DataTypeFactory.getInstance().getDataType(dataType);
         while (preprocessOneOperation(happenBeforeGraph, adt)) {
             ;
         }
@@ -151,7 +151,7 @@ public class HBGPreprocessor {
 
 
     public RuleTable extractRules(HappenBeforeGraph happenBeforeGraph, String dataType, VisibilityType visibilityType) {
-        AbstractDataType adt = new DataTypeFactory().getDataType(dataType);
+        AbstractDataType adt = DataTypeFactory.getInstance().getDataType(dataType);
         RuleTable ruleTable = new RuleTable();
         HashMultimap<HBGNode, HBGNode> linRules = HashMultimap.create();
         for (HBGNode node : happenBeforeGraph) {

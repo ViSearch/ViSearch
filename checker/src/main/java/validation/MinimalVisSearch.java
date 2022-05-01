@@ -74,7 +74,7 @@ public class MinimalVisSearch {
     }
 
     public boolean checkConsistency() {
-        AbstractDataType adt = new DataTypeFactory().getDataType(configuration.getAdt());
+        AbstractDataType adt = DataTypeFactory.getInstance().getDataType(configuration.getAdt());
         while (!stateDeque.isEmpty() && !exit
                 && (configuration.getQueueLimit() == -1 || stateDeque.size() < configuration.getQueueLimit())) {
             SearchState state = stateDeque.pollFirst();

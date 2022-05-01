@@ -123,7 +123,7 @@ public class VisearchChecker {
 
     protected HappenBeforeGraph load(String filename) {
         MyRawTraceProcessor rp = new MyRawTraceProcessor();
-        HappenBeforeGraph happenBeforeGraph = rp.generateProgram(filename,  new DataTypeFactory().getDataType(adt)).generateHappenBeforeGraph();
+        HappenBeforeGraph happenBeforeGraph = rp.generateProgram(filename, DataTypeFactory.getInstance().getDataType(adt)).generateHappenBeforeGraph();
         return happenBeforeGraph;
     }
 

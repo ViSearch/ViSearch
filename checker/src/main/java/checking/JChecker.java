@@ -23,6 +23,10 @@ public class JChecker extends VisearchChecker {
         return check(happenBeforeGraph);
     }
 
+    public String test(VSModel model, String input) {
+       return "";
+    }
+
     public String visCheckForJepsen(PersistentVector history) {
         HappenBeforeGraph happenBeforeGraph = new JepsenHistoryProcessor().transformHistory(history);
         return check(happenBeforeGraph);
@@ -30,7 +34,7 @@ public class JChecker extends VisearchChecker {
 
     protected HappenBeforeGraph load(String history) {
         JepsenHistoryProcessor processor = new JepsenHistoryProcessor();
-        return new HappenBeforeGraph(processor.generateProgram(history, new DataTypeFactory().getDataType(adt)));
+        return new HappenBeforeGraph(processor.generateProgram(history, DataTypeFactory.getInstance().getDataType(adt)));
     }
 
     public String check(HappenBeforeGraph history) {

@@ -14,10 +14,12 @@ public class Invocation {
     private List<Object> arguments;
     private List<Object> retValues;
 
+    private boolean isQuery = false;
+
+    private boolean isUpdate = false;
     private int id;
     private int threadId;
     private Pair<Integer, Integer> pairID;
-    private OPERATION_TYPE operationType = OPERATION_TYPE.QUERY;
 
     public Invocation() {
         arguments = new ArrayList<Object>();
@@ -48,6 +50,22 @@ public class Invocation {
         return arguments;
     }
 
+    public boolean isQuery() {
+        return isQuery;
+    }
+
+    public boolean isUpdate() {
+        return isUpdate;
+    }
+
+    public void setQuery(boolean query) {
+        isQuery = query;
+    }
+
+    public void setUpdate(boolean update) {
+        isUpdate = update;
+    }
+
     public int getId() {
         return id;
     }
@@ -70,14 +88,6 @@ public class Invocation {
 
     public void setPairID(Pair<Integer, Integer> pairID) {
         this.pairID = pairID;
-    }
-
-    public OPERATION_TYPE getOperationType() {
-        return operationType;
-    }
-
-    public void setOperationType(OPERATION_TYPE operationType) {
-        this.operationType = operationType;
     }
 
     @Override

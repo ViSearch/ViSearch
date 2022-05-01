@@ -20,7 +20,7 @@ public class JChecker extends VisearchChecker {
        return "";
     }
 
-    public String visCheckForJepsen(PersistentVector history) {
+    public String visCheck(Object history) {
         HappenBeforeGraph happenBeforeGraph = new JepsenObjectHistoryTransformer().transformHistory(history);
         return check(happenBeforeGraph);
     }

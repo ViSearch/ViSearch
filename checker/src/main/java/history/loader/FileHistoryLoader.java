@@ -7,7 +7,7 @@ import history.Program;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class FileHistoryLoader extends BaseHistoryLoader {
+public abstract class FileHistoryLoader {
     protected List<List<PlainOperation>> plainHistory = new ArrayList<>();
 
     protected abstract void loadFile(String filePath);

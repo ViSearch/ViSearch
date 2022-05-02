@@ -40,9 +40,4 @@ public class VisearchTraceFileLoader extends FileHistoryLoader {
         }
         return operation;
     }
-
-    public static void main(String[] args) {
-        FileHistoryLoader loader = new VisearchTraceFileLoader();
-        System.out.println(loader.generateProgram("test/riak_set_2.trc", new SetOperationTransformer()).generateHappenBeforeGraph());
-    }
 }

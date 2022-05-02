@@ -16,7 +16,7 @@ public class CrdtSet extends AbstractDataType {
                 data.add(key);
                 return true;
             }
-            case "rem": {
+            case "remove": {
                 Integer key = (Integer) invocation.getArguments().get(0);
                 data.remove(key);
                 return true;
@@ -35,7 +35,7 @@ public class CrdtSet extends AbstractDataType {
                 if (invocation.getRetValues().size() == 0) {
                     return sz == 0;
                 } else {
-                    return sz == invocation.getRetValues().get(0);
+                    return sz.equals(invocation.getRetValues().get(0));
                 }
             }
             default:

@@ -16,10 +16,9 @@ public class SetOperationTransformer implements PlainOperationTransformer {
         switch (operation.operationName) {
             case "add": {
                 invocation.addArguments(Integer.parseInt(operation.arguments.get(0)));
-                invocation.addArguments(Integer.parseInt(operation.arguments.get(1)));
                 break;
             }
-            case "rem": {
+            case "remove": {
                 invocation.addArguments(Integer.parseInt(operation.arguments.get(0)));
                 break;
             }

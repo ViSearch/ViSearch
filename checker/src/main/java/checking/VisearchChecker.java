@@ -238,7 +238,7 @@ public class VisearchChecker {
         return multiThreadCheck(happenBeforeGraph, configuration);
     }
 
-    public boolean testTrace(HappenBeforeGraph happenBeforeGraph, VisibilityType visibilityType) throws Exception {
+    public boolean testTrace(HappenBeforeGraph happenBeforeGraph, VisibilityType visibilityType) {
         SearchConfiguration configuration = new SearchConfiguration.Builder()
                 .setAdt(adt)
                 .setEnableIncompatibleRelation(false)

@@ -1,13 +1,11 @@
 package validation;
 
-import datatype.OperationTypes;
 import history.VisibilityType;
 import history.HBGNode;
 import history.HappenBeforeGraph;
 import history.Linearization;
 import history.LinVisibility;
 import rule.RuleTable;
-import util.IntPair;
 import util.NodePair;
 
 import java.io.Serializable;

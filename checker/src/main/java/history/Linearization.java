@@ -1,6 +1,5 @@
 package history;
 
-import datatype.OperationTypes;
 import rule.RuleTable;
 import util.NodePair;
 

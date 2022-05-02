@@ -2,7 +2,6 @@ package validation;
 
 import datatype.AbstractDataType;
 import datatype.DataTypeFactory;
-import datatype.OperationTypes;
 import history.HBGNode;
 import history.HappenBeforeGraph;
 import history.LinVisibility;

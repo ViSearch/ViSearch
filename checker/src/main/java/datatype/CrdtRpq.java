@@ -11,45 +11,51 @@ public class CrdtRpq extends AbstractDataType {
 
     @Override
     public boolean step(Invocation invocation) {
+        boolean result = false;
         switch (invocation.getMethodName()) {
             case "add": {
                 Integer key = (Integer) invocation.getArguments().get(0);
                 Integer value = (Integer) invocation.getArguments().get(1);
                 add(key, value);
-                return true;
+                result = true;
+                break;
             }
             case "incrby": {
                 Integer key = (Integer) invocation.getArguments().get(0);
                 Long delta = (Long) invocation.getArguments().get(1);
                 inc(key, delta.intValue());
-                return true;
+                result = true;
+                break;
             }
             case "rem": {
                 Integer key = (Integer) invocation.getArguments().get(0);
                 rem(key);
-                return true;
+                result = true;
+                break;
             }
             case "score": {
                 Integer key = (Integer) invocation.getArguments().get(0);
                 Integer value = getValue(key);
-                if (invocation.getRetValues().size() == 0) {
-                    return value == null;
+                if (value == null) {
+                    result = invocation.getRetValues().size() == 0;
                 } else {
-                    return value == invocation.getRetValues().get(0);
+                    result = value.equals(invocation.getRetValues().get(0));
                 }
+                break;
             }
             case "max": {
-                List<Integer> result = getMaximumElement();
-                if (result.size() == 0) {
-                    return invocation.getRetValues().size() == 0;
+                List<Integer> element = getMaximumElement();
+                if (element.size() == 0) {
+                    result = invocation.getRetValues().size() == 0;
                 } else {
-                    return invocation.getRetValues().size() > 0 && invocation.getRetValues().get(0) == result.get(0) && invocation.getRetValues().get(1) == result.get(1);
+                    result = invocation.getRetValues().size() > 0 && invocation.getRetValues().get(0) .equals(element.get(0)) && invocation.getRetValues().get(1).equals(element.get(1));
                 }
+                break;
             }
             default:
                 System.out.println("Wrong Operation");
         }
-        return false;
+        return result;
     }
 
 //    @Override

@@ -8,9 +8,6 @@ public class RpqOperationTransformer implements PlainOperationTransformer {
     @Override
     public Invocation generateInvocation(PlainOperation operation) {
         Invocation invocation = new Invocation();
-        for (Object arg : operation.arguments) {
-            invocation.addArguments(arg);
-        }
         invocation.setMethodName(operation.operationName);
 
         switch (operation.operationName) {
@@ -37,8 +34,9 @@ public class RpqOperationTransformer implements PlainOperationTransformer {
             }
             case "max": {
                 if (!operation.retValues.get(0).equals("null")) {
-                    invocation.addRetValue(Integer.parseInt(operation.retValues.get(0)));
-                    invocation.addRetValue(Integer.parseInt(operation.retValues.get(1)));
+                    String[] element = operation.retValues.get(0).split(" ");
+                    invocation.addRetValue(Integer.parseInt(element[0]));
+                    invocation.addRetValue(Integer.parseInt(element[1]));
                 }
                 break;
             }

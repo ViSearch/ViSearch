@@ -23,7 +23,7 @@ public class CrdtMap extends AbstractDataType {
                 if (invocation.getRetValues().size() == 0) {
                     return value == null;
                 } else {
-                    return value == invocation.getRetValues().get(0);
+                    return value.equals(invocation.getRetValues().get(0));
                 }
             }
             case "containsValue": {
@@ -40,7 +40,7 @@ public class CrdtMap extends AbstractDataType {
                 if (invocation.getRetValues().size() == 0) {
                     return sz == 0;
                 } else {
-                    return sz == invocation.getRetValues().get(0);
+                    return sz.equals(invocation.getRetValues().get(0));
                 }
             }
             default:
@@ -87,27 +87,6 @@ public class CrdtMap extends AbstractDataType {
         }
         return false;
     }
-
-//    public Invocation generateInvocation(PlainOperation record) {
-//        Invocation invocation = new Invocation();
-//        invocation.setRetValue(record.getRetValue());
-//        invocation.setMethodName(record.getOperationName());
-//        invocation.setOperationType(getOperationType(record.getOperationName()));
-//
-//        if (record.getOperationName().equals("put")) {
-//            invocation.addArguments(Long.parseLong(record.getArgument(0)));
-//            invocation.addArguments(Long.parseLong(record.getArgument(1)));
-//        } else if (record.getOperationName().equals("get")) {
-//            invocation.addArguments(Long.parseLong(record.getArgument(0)));
-//        } else if (record.getOperationName().equals("containsValue")) {
-//            invocation.addArguments(Long.parseLong(record.getArgument(0)));
-//        } else if (record.getOperationName().equals("size")) {
-//            ;
-//        } else {
-//            System.out.println("Unknown operation");
-//        }
-//        return invocation;
-//    }
 
     @Override
     public boolean isDummyOperation(HBGNode node) {

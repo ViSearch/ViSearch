@@ -1,7 +1,12 @@
 package checking;
 
+import datatype.MapOperationTransformer;
+import datatype.RpqOperationTransformer;
+import datatype.SetOperationTransformer;
 import history.HappenBeforeGraph;
 import history.VisibilityType;
+import history.loader.FileHistoryLoader;
+import history.loader.VisearchTraceFileLoader;
 import rule.RuleTable;
 import validation.*;
 
@@ -108,4 +113,10 @@ public class Checker {
         return "undefined";
     }
 
+    public static void main(String[] args) {
+        FileHistoryLoader loader = new VisearchTraceFileLoader();
+        HappenBeforeGraph happenBeforeGraph = loader.generateProgram("test/redis_rpq_3.trc", new RpqOperationTransformer()).generateHappenBeforeGraph();
+        Checker checker = new Checker("rpq", 4, true);
+        System.out.println(checker.measureSingleTrace(happenBeforeGraph));
+    }
 }

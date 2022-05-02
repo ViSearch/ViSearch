@@ -8,9 +8,6 @@ public class MapOperationTransformer implements PlainOperationTransformer {
     @Override
     public Invocation generateInvocation(PlainOperation operation) {
         Invocation invocation = new Invocation();
-        for (Object arg : operation.arguments) {
-            invocation.addArguments(arg);
-        }
         invocation.setMethodName(operation.operationName);
 
         switch (operation.operationName) {
@@ -28,9 +25,9 @@ public class MapOperationTransformer implements PlainOperationTransformer {
             }
             case "containsValue": {
                 invocation.addArguments(Integer.parseInt(operation.arguments.get(0)));
-                if (invocation.getRetValues().get(0).equals("false")) {
+                if (operation.retValues.get(0).equals("false")) {
                     invocation.addRetValue(0);
-                } else if (invocation.getRetValues().get(0).equals("true")) {
+                } else if (operation.retValues.get(0).equals("true")) {
                     invocation.addRetValue(1);
                 }
                 break;

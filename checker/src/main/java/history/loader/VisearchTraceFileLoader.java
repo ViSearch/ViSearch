@@ -1,5 +1,7 @@
 package history.loader;
 
+import datatype.SetOperationTransformer;
+
 import java.io.*;
 import java.util.ArrayList;
 
@@ -37,5 +39,10 @@ public class VisearchTraceFileLoader extends FileHistoryLoader {
             operation.arguments.add(cols[i]);
         }
         return operation;
+    }
+
+    public static void main(String[] args) {
+        FileHistoryLoader loader = new VisearchTraceFileLoader();
+        System.out.println(loader.generateProgram("test/riak_set_2.trc", new SetOperationTransformer()).generateHappenBeforeGraph());
     }
 }

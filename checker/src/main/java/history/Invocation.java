@@ -42,6 +42,10 @@ public class Invocation {
         arguments.add(object);
     }
 
+    public void addRetValue(Object object) {
+        retValues.add(object);
+    }
+
     public String getMethodName() {
         return methodName;
     }

@@ -10,9 +10,9 @@ public class DataTypeFactory {
     private static DataTypeFactory instance = new DataTypeFactory();
 
     private DataTypeFactory() {
-        factory.put("set", RiakSet.class);
-        factory.put("map", RiakMap.class);
-        factory.put("rpq", RedisRpq.class);
+        factory.put("set", CrdtSet.class);
+        factory.put("map", CrdtMap.class);
+        factory.put("rpq", CrdtRpq.class);
     }
 
     public static DataTypeFactory getInstance() {

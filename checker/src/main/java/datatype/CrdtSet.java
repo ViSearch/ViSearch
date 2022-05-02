@@ -2,12 +2,10 @@ package datatype;
 
 import history.HBGNode;
 import history.Invocation;
-import history.loader.PlainOperation;
-import datatype.OperationTypes.OPERATION_TYPE;
 
 import java.util.HashSet;
 
-public class RiakSet extends AbstractDataType {
+public class CrdtSet extends AbstractDataType {
     private HashSet<Integer> data = new HashSet<>();
 
     @Override

@@ -75,7 +75,7 @@ public class Linearization implements Serializable, Iterable<HBGNode> {
     public int getQueryOperationSize() {
         int sz = 0;
         for (HBGNode node : lin) {
-            if (node.getInvocation().getOperationType() == OperationTypes.OPERATION_TYPE.QUERY) {
+            if (node.getInvocation().isQuery()) {
                 sz++;
             }
         }

@@ -25,24 +25,13 @@ public class PlainOperation implements Comparable<PlainOperation> {
         this.startTime = startTime;
         this.endTime = endTime;
     }
-//    public PlainOperation(String line) {
-//        String[] cols = line.split(",");
-//        this.startTime = Long.parseLong(cols[0]);
-//        this.endTime = Long.parseLong(cols[1]);
-//        this.operationName = cols[2];
-//        this.retValue = cols[cols.length - 1];
-//        arguments = new ArrayList<>();
-//        for (int i = 3; i < cols.length - 1; i++) {
-//            arguments.add(cols[i]);
-//        }
-//    }
 
-    public Invocation generateInvocation(AbstractDataType adt) {
-        if (adt == null) {
-            System.out.println("ADT is null");
+    public Invocation generateInvocation(PlainOperationTransformer transformer) {
+        if (transformer == null) {
+            System.out.println("There is no transformer");
             return null;
         }
-        return adt.generateInvocation(this);
+        return transformer.generateInvocation(this);
     }
 
     @Override

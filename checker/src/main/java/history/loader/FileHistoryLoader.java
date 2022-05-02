@@ -11,13 +11,13 @@ public abstract class FileHistoryLoader {
     protected List<List<PlainOperation>> plainHistory = new ArrayList<>();
 
     protected abstract void loadFile(String filePath);
-    public Program generateProgram(String filepath, AbstractDataType adt) {
+    public Program generateProgram(String filepath, PlainOperationTransformer transformer) {
         loadFile(filepath);
         List<List<Invocation>> subPrograms = new ArrayList<>();
         for (int i = 0; i < plainHistory.size(); i++) {
             List<Invocation> invocations = new ArrayList<>();
             for (PlainOperation r : plainHistory.get(i)) {
-                invocations.add(r.generateInvocation(adt));
+                invocations.add(r.generateInvocation(transformer));
             }
             subPrograms.add(invocations);
         }

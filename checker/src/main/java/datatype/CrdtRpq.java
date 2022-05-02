@@ -2,12 +2,10 @@ package datatype;
 
 import history.HBGNode;
 import history.Invocation;
-import history.loader.PlainOperation;
-import datatype.OperationTypes.OPERATION_TYPE;
 
 import java.util.*;
 
-public class RedisRpq extends AbstractDataType {
+public class CrdtRpq extends AbstractDataType {
     private ArrayList<RpqElement> data = new ArrayList<>();
     private HashMap<Integer, RpqElement> map = new HashMap<>();
 
@@ -104,31 +102,6 @@ public class RedisRpq extends AbstractDataType {
         }
         return false;
     }
-
-//    public Invocation generateInvocation(PlainOperation record) {
-//        Invocation invocation = new Invocation();
-//        invocation.setRetValue(record.getRetValue());
-//        invocation.setMethodName(record.getOperationName());
-//        invocation.setOperationType(getOperationType(record.getOperationName()));
-//
-//        if (record.getOperationName().equals("add")) {
-//            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-//            invocation.addArguments(Integer.parseInt(record.getArgument(1)));
-//        } else if (record.getOperationName().equals("rem")) {
-//            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-//        } else if (record.getOperationName().equals("incrby")) {
-//            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-//            invocation.addArguments(Long.parseLong(record.getArgument(1)));
-//        } else if (record.getOperationName().equals("max")) {
-//            ;
-//        } else if (record.getOperationName().equals("score")) {
-//            invocation.addArguments(Integer.parseInt(record.getArgument(0)));
-//        } else {
-//            System.out.println("Unknown operation");
-//        }
-//
-//        return invocation;
-//    }
 
     @Override
     public boolean isDummyOperation(HBGNode node) {

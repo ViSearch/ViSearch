@@ -1,8 +1,12 @@
 package checking;
 
+import datatype.MapOperationTransformer;
+import datatype.RpqOperationTransformer;
+import datatype.SetOperationTransformer;
 import history.VisibilityType;
 import datatype.DataTypeFactory;
 import history.HappenBeforeGraph;
+import history.loader.PlainOperationTransformer;
 import rule.RuleTable;
 import history.loader.VisearchTraceFileLoader;
 import validation.*;
@@ -118,28 +122,36 @@ public class VisearchChecker {
 
     protected HappenBeforeGraph load(String filename) {
         VisearchTraceFileLoader rp = new VisearchTraceFileLoader();
-        HappenBeforeGraph happenBeforeGraph = rp.generateProgram(filename, DataTypeFactory.getInstance().getDataType(adt)).generateHappenBeforeGraph();
+        PlainOperationTransformer transformer = null;
+        if (adt.equals("rpq")) {
+            transformer = new RpqOperationTransformer();
+        } else if (adt.equals("set")) {
+            transformer = new SetOperationTransformer();
+        } else if (adt.equals("map")) {
+            transformer = new MapOperationTransformer();
+        }
+        HappenBeforeGraph happenBeforeGraph = rp.generateProgram(filename, transformer).generateHappenBeforeGraph();
         return happenBeforeGraph;
     }
 
-    protected synchronized void outputResult(String filename, List<SearchState> results) {
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename));
-            oos.writeObject(results);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void readResult(String filename) {
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename));
-            List<SearchState> results = (List<SearchState>) ois.readObject();
-            System.out.println(results.get(0).toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    protected synchronized void outputResult(String filename, List<SearchState> results) {
+//        try {
+//            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename));
+//            oos.writeObject(results);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    public void readResult(String filename) {
+//        try {
+//            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename));
+//            List<SearchState> results = (List<SearchState>) ois.readObject();
+//            System.out.println(results.get(0).toString());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public void testDataSet(String filepath, VisibilityType visibilityType) throws Exception {
         File baseFile = new File(filepath);
@@ -237,17 +249,6 @@ public class VisearchChecker {
                 .build();
 
         return multiThreadCheck(happenBeforeGraph, configuration);
-    }
-
-    public List<String> filter(String filename) throws Exception {
-        BufferedReader br = new BufferedReader(new FileReader(new File(filename)));
-        List<String> result = new LinkedList<String>();
-        String str = null;
-        while ((str = br.readLine()) != null) {
-            if (str.endsWith(":false"))
-                result.add(str.substring(0, str.lastIndexOf(':')));
-        }
-        return result;
     }
 
     public String measureVisibility(String filename) throws Exception {

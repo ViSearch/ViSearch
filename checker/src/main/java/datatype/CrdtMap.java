@@ -2,12 +2,10 @@ package datatype;
 
 import history.HBGNode;
 import history.Invocation;
-import history.loader.PlainOperation;
-import datatype.OperationTypes.OPERATION_TYPE;
 
 import java.util.*;
 
-public class RiakMap extends AbstractDataType {
+public class CrdtMap extends AbstractDataType {
     private HashMap<Integer, Integer> data = new HashMap<>();
 
     @Override

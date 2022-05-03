@@ -1,11 +1,9 @@
 package checking;
 
-import datatype.MapOperationTransformer;
-import datatype.RpqOperationTransformer;
-import datatype.SetOperationTransformer;
+import datatype.*;
 import history.VisibilityType;
-import datatype.DataTypeFactory;
 import history.HappenBeforeGraph;
+import history.loader.FileHistoryLoader;
 import history.loader.PlainOperationTransformer;
 import rule.RuleTable;
 import history.loader.VisearchTraceFileLoader;
@@ -23,141 +21,37 @@ import java.util.List;
 
 import static net.sourceforge.argparse4j.impl.Arguments.*;
 
-public class VisearchChecker {
-    protected String adt;
-    private int threadNum = 8;
-    private long averageState = 0;
-    private boolean stateFilter = false;
-    public boolean isStateFilter = false;
-
-    public VisearchChecker(String adt, int threadNum) {
-        this.adt = adt;
-        this.threadNum = threadNum;
+public class VisearchChecker extends Checker {
+    public VisearchChecker(AbstractDataType datatype) {
+        super(datatype);
     }
 
-    public VisearchChecker(String adt, int threadNum, boolean stateFilter) {
-        this.adt = adt;
-        this.threadNum = threadNum;
-        this.stateFilter = stateFilter;
+    public VisearchChecker(AbstractDataType datatype, int threadNum) {
+        super(datatype, threadNum);
     }
 
-    public boolean normalCheck(HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration) {
-        RuleTable ruleTable = null;
-        if (stateFilter) {
-            ruleTable = extractRules(happenBeforeGraph, configuration.getVisibilityType());
-            // if (ruleTable.size() > 0) {
-            //     isStateFilter = true;
-            // }
-        }
-        MinimalVisSearch vfs = new MinimalVisSearch(configuration, null);
-        vfs.setRuleTable(ruleTable);
-        vfs.init(happenBeforeGraph);
-        boolean result = vfs.checkConsistency();
-        // averageState += vfs.getStateExplored();
-        return result;
+    public VisearchChecker(AbstractDataType datatype, int threadNum, boolean enablePruning) {
+        super(datatype, threadNum, enablePruning);
     }
 
-    public boolean multiThreadCheck(HappenBeforeGraph happenBeforeGraph, SearchConfiguration configuration) {
-        if (threadNum == 1) {
-            return normalCheck(happenBeforeGraph, configuration);
-        }
-
-        // System.out.println(happenBeforeGraph.toString());
-        RuleTable ruleTable = null;
-        if (stateFilter) {
-            ruleTable = extractRules(happenBeforeGraph, configuration.getVisibilityType());
-            // if (ruleTable.size() == 0) {
-            //     isStateFilter = false;
-            // }
-        }
-
-        SearchConfiguration subConfiguration = new SearchConfiguration.Builder()
-                                                                .setVisibilityType(configuration.getVisibilityType())
-                                                                .setAdt(configuration.getAdt())
-                                                                .setEnableIncompatibleRelation(false)
-                                                                .setEnableOutputSchedule(false)
-                                                                .setEnablePrickOperation(false)
-                                                                .setFindAllAbstractExecution(false)
-                                                                .setVisibilityLimit(-1)
-                                                                .setQueueLimit(32)
-                                                                .setSearchMode(1)
-                                                                .setSearchLimit(-1)
-                                                                .build();
-        MinimalVisSearch subVfs = new MinimalVisSearch(subConfiguration, null);
-//        subVfs.setRuleTable(ruleTable);
-        subVfs.init(happenBeforeGraph);
-        boolean result = subVfs.checkConsistency();
-        if (subVfs.isExit()) {
-            // averageState += subVfs.getStateExplored();
-            return result;
-        }
-        List<SearchState> states = subVfs.getAllSearchState();
-        ThreadPoolSearch threadPoolSearch = new ThreadPoolSearch(null, happenBeforeGraph, configuration, threadNum);
-        threadPoolSearch.setRuleTable(ruleTable);
-        //MultiThreadSearch multiThreadSearch = new MultiThreadSearch(happenBeforeGraph, configuration, threadNum);
-        //multiThreadSearch.setRuleTable(ruleTable);
-        //result = multiThreadSearch.startSearch(states);
-        try {
-            result = threadPoolSearch.startSearch(states);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        //averageState += multiThreadSearch.getStateExplored();
-        return result;
+    public VisearchChecker(String datatype) {
+        super(datatype);
     }
 
-    public long getAverageState() {
-        return averageState;
+    public VisearchChecker(String datatype, int threadNum) {
+        super(datatype, threadNum);
     }
 
-    protected RuleTable extractRules(HappenBeforeGraph happenBeforeGraph, VisibilityType visibilityType) {
-        RuleTable ruleTable = new HBGPreprocessor().extractRules(happenBeforeGraph, adt, visibilityType);
-        return ruleTable;
+    public VisearchChecker(String datatype, int threadNum, boolean enablePruning) {
+        super(datatype, threadNum, enablePruning);
     }
-
-    protected void removeDummyOperations(HappenBeforeGraph happenBeforeGraph) {
-        new HBGPreprocessor().preprocess(happenBeforeGraph, adt);
-    }
-
-    protected HappenBeforeGraph load(String filename) {
-        VisearchTraceFileLoader rp = new VisearchTraceFileLoader();
-        PlainOperationTransformer transformer = null;
-        if (adt.equals("rpq")) {
-            transformer = new RpqOperationTransformer();
-        } else if (adt.equals("set")) {
-            transformer = new SetOperationTransformer();
-        } else if (adt.equals("map")) {
-            transformer = new MapOperationTransformer();
-        }
-        HappenBeforeGraph happenBeforeGraph = rp.generateProgram(filename, transformer).generateHappenBeforeGraph();
-        return happenBeforeGraph;
-    }
-
-//    protected synchronized void outputResult(String filename, List<SearchState> results) {
-//        try {
-//            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename));
-//            oos.writeObject(results);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public void readResult(String filename) {
-//        try {
-//            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename));
-//            List<SearchState> results = (List<SearchState>) ois.readObject();
-//            System.out.println(results.get(0).toString());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public void testDataSet(String filepath, VisibilityType visibilityType) throws Exception {
         File baseFile = new File(filepath);
         if (baseFile.isFile() || !baseFile.exists()) {
             throw new FileNotFoundException();
         }
+        FileHistoryLoader loader = new VisearchTraceFileLoader(datatype);
         File[] files = baseFile.listFiles();
         int i = 0;
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -167,7 +61,8 @@ public class VisearchChecker {
             if (i % 1000 == 0) {
                 System.out.println(i);
             }
-            Boolean result = testTrace(file.toString(),  visibilityType);
+            HappenBeforeGraph happenBeforeGraph = loader.generateProgram(file.toString()).generateHappenBeforeGraph();
+            boolean result = checkSingleTrace(happenBeforeGraph, visibilityType);
             if (!result) {
                 System.out.println(file.toString() + ":" + result);
             }
@@ -176,20 +71,24 @@ public class VisearchChecker {
     }
 
     public void testDataSet(List<String> dataset, VisibilityType visibilityType) throws Exception {
+        FileHistoryLoader loader = new VisearchTraceFileLoader(datatype);
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         System.out.println("Starting " + df.format(new Date()));
         for (String file : dataset) {
-            Boolean result = testTrace(file, visibilityType);
+            HappenBeforeGraph happenBeforeGraph = loader.generateProgram(file).generateHappenBeforeGraph();
+            boolean result = checkSingleTrace(happenBeforeGraph, visibilityType);
             System.out.println(file + ":" + result);
         }
         System.out.println("Finishing " + df.format(new Date()));
     }
 
     public void measureDataSet(List<String> dataset) throws Exception {
+        FileHistoryLoader loader = new VisearchTraceFileLoader(datatype);
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         System.out.println("Starting " + df.format(new Date()));
         for (String file : dataset) {
-            String result = measureVisibility(file);
+            HappenBeforeGraph happenBeforeGraph = loader.generateProgram(file).generateHappenBeforeGraph();
+            String result = measureSingleTrace(happenBeforeGraph);
             System.out.println(file + ":" + result);
         }
         System.out.println("Finishing " + df.format(new Date()));
@@ -200,6 +99,7 @@ public class VisearchChecker {
         if (baseFile.isFile() || !baseFile.exists()) {
             throw new FileNotFoundException();
         }
+        FileHistoryLoader loader = new VisearchTraceFileLoader(datatype);
         File[] files = baseFile.listFiles();
         int i = 0;
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -212,7 +112,8 @@ public class VisearchChecker {
             // if (file.toString().equals("../../pq-f/result/rwf_rpq_default_1636085387554633971.trc")) {
             //     continue;
             // }
-            String result = measureVisibility(file.toString());
+            HappenBeforeGraph happenBeforeGraph = loader.generateProgram(file.toString()).generateHappenBeforeGraph();
+            String result = measureSingleTrace(happenBeforeGraph);
             if (!result.equals("COMPLETE")) {
                 System.out.println(i + ":" + file + ":" + result);
             }
@@ -221,44 +122,6 @@ public class VisearchChecker {
             }
         }
         System.out.println("Finishing " + df.format(new Date()));
-    }
-
-    public boolean testTrace(String filename, VisibilityType visibilityType) throws Exception {
-        SearchConfiguration configuration = new SearchConfiguration.Builder()
-                .setAdt(adt)
-                .setEnableIncompatibleRelation(false)
-                .setEnablePrickOperation(false)
-                .setEnableOutputSchedule(false)
-                .setVisibilityType(visibilityType)
-                .setFindAllAbstractExecution(false)
-                .build();
-
-        HappenBeforeGraph happenBeforeGraph = load(filename);
-        removeDummyOperations(happenBeforeGraph);
-        return multiThreadCheck(happenBeforeGraph, configuration);
-    }
-
-    public boolean testTrace(HappenBeforeGraph happenBeforeGraph, VisibilityType visibilityType) {
-        SearchConfiguration configuration = new SearchConfiguration.Builder()
-                .setAdt(adt)
-                .setEnableIncompatibleRelation(false)
-                .setEnablePrickOperation(false)
-                .setEnableOutputSchedule(false)
-                .setVisibilityType(visibilityType)
-                .setFindAllAbstractExecution(false)
-                .build();
-
-        return multiThreadCheck(happenBeforeGraph, configuration);
-    }
-
-    public String measureVisibility(String filename) throws Exception {
-        for (int i = 0; i < 6; i++) {
-            boolean result = testTrace(filename, VisibilityType.values()[i]);
-            if (result) {
-                return VisibilityType.values()[i].name();
-            }
-        }
-        return "undefined";
     }
 
     public static void main(String[] args) throws Exception {
@@ -309,10 +172,12 @@ public class VisearchChecker {
                     checker.testDataSet(filepath, VisibilityType.getVisibility(res.getString("vis")));
                 }
             } else {
+                FileHistoryLoader loader = new VisearchTraceFileLoader(dataType);
+                HappenBeforeGraph happenBeforeGraph = loader.generateProgram(filepath).generateHappenBeforeGraph();
                 if (res.getBoolean("measure")) {
-                    System.out.println(checker.measureVisibility(filepath));
+                    System.out.println(checker.measureSingleTrace(happenBeforeGraph));
                 } else {
-                    System.out.println(checker.testTrace(filepath, VisibilityType.getVisibility(res.getString("vis"))));
+                    System.out.println(checker.checkSingleTrace(happenBeforeGraph, VisibilityType.getVisibility(res.getString("vis"))));
                 }
             }
             System.out.println(res);

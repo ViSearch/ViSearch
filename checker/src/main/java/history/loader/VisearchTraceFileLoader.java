@@ -6,6 +6,14 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class VisearchTraceFileLoader extends FileHistoryLoader {
+    public VisearchTraceFileLoader(String transformer) {
+        super(transformer);
+    }
+
+    public VisearchTraceFileLoader(PlainOperationTransformer transformer) {
+        super(transformer);
+    }
+
     protected void loadFile(String filepath) {
         try {
             if (filepath.endsWith(".trc")) {

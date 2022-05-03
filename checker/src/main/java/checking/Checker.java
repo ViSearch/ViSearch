@@ -1,8 +1,6 @@
 package checking;
 
-import datatype.MapOperationTransformer;
-import datatype.RpqOperationTransformer;
-import datatype.SetOperationTransformer;
+import datatype.*;
 import history.HappenBeforeGraph;
 import history.VisibilityType;
 import history.loader.FileHistoryLoader;
@@ -20,6 +18,27 @@ public class Checker {
         this.datatype = datatype;
         this.threadNum = 4;
         this.enablePruning = false;
+    }
+
+    public Checker(AbstractDataType datatype) {
+        this.datatype = datatype.getClass().getSimpleName();
+        DataTypeFactory.getInstance().addDataType(this.datatype, datatype.getClass());
+        this.threadNum = 4;
+        this.enablePruning = false;
+    }
+
+    public Checker(AbstractDataType datatype, int threadNum) {
+        this.datatype = datatype.getClass().getSimpleName();
+        DataTypeFactory.getInstance().addDataType(this.datatype, datatype.getClass());
+        this.threadNum = threadNum;
+        this.enablePruning = false;
+    }
+
+    public Checker(AbstractDataType datatype, int threadNum, boolean enablePruning) {
+        this.datatype = datatype.getClass().getSimpleName();
+        DataTypeFactory.getInstance().addDataType(this.datatype, datatype.getClass());
+        this.threadNum = threadNum;
+        this.enablePruning = enablePruning;
     }
 
     public Checker(String datatype, int threadNum) {
@@ -111,12 +130,5 @@ public class Checker {
             }
         }
         return "undefined";
-    }
-
-    public static void main(String[] args) {
-        FileHistoryLoader loader = new VisearchTraceFileLoader();
-        HappenBeforeGraph happenBeforeGraph = loader.generateProgram("test/redis_rpq_3.trc", new RpqOperationTransformer()).generateHappenBeforeGraph();
-        Checker checker = new Checker("rpq", 4, true);
-        System.out.println(checker.measureSingleTrace(happenBeforeGraph));
     }
 }

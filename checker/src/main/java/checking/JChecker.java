@@ -15,10 +15,6 @@ public class JChecker extends Checker {
         super(creator, 1, false);
     }
 
-    public String test(VSModel model, String input) {
-       return "";
-    }
-
     public String visCheck(Object history) {
         HappenBeforeGraph happenBeforeGraph = new JepsenObjectHistoryTransformer().transformHistory(history);
         return measureSingleTrace(happenBeforeGraph);

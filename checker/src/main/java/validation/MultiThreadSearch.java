@@ -58,11 +58,6 @@ public class MultiThreadSearch {
     public int getStateExplored() {
         return stateExplored;
     }
-
-    public static void main(String[] args) throws Exception {
-        VisearchChecker checker = new VisearchChecker("rpq", 4);
-        System.out.println(checker.measureVisibility("D:\\rpq_rwf\\result\\rwf_rpq_default_1634988338134.trc"));
-    }
 }
 
 class SearchLock {

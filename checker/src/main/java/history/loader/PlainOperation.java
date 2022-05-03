@@ -26,13 +26,13 @@ public class PlainOperation implements Comparable<PlainOperation> {
         this.endTime = endTime;
     }
 
-    public Invocation generateInvocation(PlainOperationTransformer transformer) {
-        if (transformer == null) {
-            System.out.println("There is no transformer");
-            return null;
-        }
-        return transformer.generateInvocation(this);
-    }
+//    public Invocation generateInvocation(PlainOperationTransformer transformer) {
+//        if (transformer == null) {
+//            System.out.println("There is no transformer");
+//            return null;
+//        }
+//        return transformer.generateInvocation(this);
+//    }
 
     @Override
     public String toString() {

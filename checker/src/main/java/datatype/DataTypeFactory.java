@@ -32,4 +32,8 @@ public class DataTypeFactory {
             }
         }
     }
+
+    public void addDataType(String name, Class datatype) {
+        factory.put(name, datatype);
+    }
 }

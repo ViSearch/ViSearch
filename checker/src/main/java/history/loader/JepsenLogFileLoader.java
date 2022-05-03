@@ -7,6 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JepsenLogFileLoader extends FileHistoryLoader {
+
+    public JepsenLogFileLoader(String transformer) {
+        super(transformer);
+    }
+
+    public JepsenLogFileLoader(PlainOperationTransformer transformer) {
+        super(transformer);
+    }
     protected void loadFile(String filepath) {
         try {
             if (filepath.endsWith(".edn")) {

@@ -193,27 +193,5 @@ public class HBGPreprocessor {
         ruleTable.insertLinRuleBulk(linRules);
         return ruleTable;
     }
-
-    public static void main(String args[]) throws Exception {
-//        File baseFile = new File("D:\\set311_with_size\\result");
-//        String dataType = "set";
-//        if (baseFile.isFile() || !baseFile.exists()) {
-//            throw new FileNotFoundException();
-//        }
-//        File[] files = baseFile.listFiles();
-//        int i = 0;
-//        for (File file : files) {
-//            i++;
-//            if (i == 1000) {
-//                return;
-//            }
-//
-//            System.out.println(file.toString());
-//            MyRawTraceProcessor rp = new MyRawTraceProcessor();
-//            HappenBeforeGraph happenBeforeGraph = rp.generateProgram(file.toString(), new DataTypeFactory().getDataType(dataType)).generateHappenBeforeGraph();
-//        }
-        VisearchChecker checker = new VisearchChecker("map", 4, true);
-        System.out.println(checker.measureVisibility("C:\\Users\\dell\\Desktop\\test.trc"));;
-    }
 }
 

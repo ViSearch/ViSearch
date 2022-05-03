@@ -22,16 +22,16 @@ import java.util.List;
 import static net.sourceforge.argparse4j.impl.Arguments.*;
 
 public class VisearchChecker extends Checker {
-    public VisearchChecker(AbstractDataType datatype) {
-        super(datatype);
+    public VisearchChecker(DataTypeCreator creator) {
+        super(creator);
     }
 
-    public VisearchChecker(AbstractDataType datatype, int threadNum) {
-        super(datatype, threadNum);
+    public VisearchChecker(DataTypeCreator creator, int threadNum) {
+        super(creator, threadNum);
     }
 
-    public VisearchChecker(AbstractDataType datatype, int threadNum, boolean enablePruning) {
-        super(datatype, threadNum, enablePruning);
+    public VisearchChecker(DataTypeCreator creator, int threadNum, boolean enablePruning) {
+        super(creator, threadNum, enablePruning);
     }
 
     public VisearchChecker(String datatype) {

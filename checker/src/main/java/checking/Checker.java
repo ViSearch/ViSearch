@@ -20,27 +20,6 @@ public class Checker {
         this.enablePruning = false;
     }
 
-    public Checker(AbstractDataType datatype) {
-        this.datatype = datatype.getClass().getSimpleName();
-        DataTypeFactory.getInstance().addDataType(this.datatype, datatype.getClass());
-        this.threadNum = 4;
-        this.enablePruning = false;
-    }
-
-    public Checker(AbstractDataType datatype, int threadNum) {
-        this.datatype = datatype.getClass().getSimpleName();
-        DataTypeFactory.getInstance().addDataType(this.datatype, datatype.getClass());
-        this.threadNum = threadNum;
-        this.enablePruning = false;
-    }
-
-    public Checker(AbstractDataType datatype, int threadNum, boolean enablePruning) {
-        this.datatype = datatype.getClass().getSimpleName();
-        DataTypeFactory.getInstance().addDataType(this.datatype, datatype.getClass());
-        this.threadNum = threadNum;
-        this.enablePruning = enablePruning;
-    }
-
     public Checker(String datatype, int threadNum) {
         this.datatype = datatype;
         this.threadNum = threadNum;
@@ -48,6 +27,27 @@ public class Checker {
 
     public Checker(String datatype, int threadNum, boolean enablePruning) {
         this.datatype = datatype;
+        this.threadNum = threadNum;
+        this.enablePruning = enablePruning;
+    }
+
+    public Checker(DataTypeCreator creator) {
+        this.datatype = creator.getClass().getSimpleName();
+        DataTypeFactory.getInstance().addDataType(this.datatype, creator);
+        this.threadNum = 4;
+        this.enablePruning = false;
+    }
+
+    public Checker(DataTypeCreator creator, int threadNum) {
+        this.datatype = creator.getClass().getSimpleName();
+        DataTypeFactory.getInstance().addDataType(this.datatype, creator);
+        this.threadNum = threadNum;
+        this.enablePruning = false;
+    }
+
+    public Checker(DataTypeCreator creator, int threadNum, boolean enablePruning) {
+        this.datatype = creator.getClass().getSimpleName();
+        DataTypeFactory.getInstance().addDataType(this.datatype, creator);
         this.threadNum = threadNum;
         this.enablePruning = enablePruning;
     }

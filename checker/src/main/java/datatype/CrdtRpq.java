@@ -5,7 +5,7 @@ import history.Invocation;
 
 import java.util.*;
 
-public class CrdtRpq extends AbstractDataType {
+public class CrdtRpq implements AbstractDataType {
     private ArrayList<RpqElement> data = new ArrayList<>();
     private HashMap<Integer, RpqElement> map = new HashMap<>();
 
@@ -76,7 +76,7 @@ public class CrdtRpq extends AbstractDataType {
 //        }
 //    }
 
-    protected boolean isRelated(Invocation src, Invocation dest) {
+    public boolean isRelated(Invocation src, Invocation dest) {
         if (src.isQuery()) {
             if (src.getId() == dest.getId()) {
                 return true;

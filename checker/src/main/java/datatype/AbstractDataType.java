@@ -7,10 +7,10 @@ import history.Invocation;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractDataType {
-    public abstract boolean step(Invocation invocation);
+public interface AbstractDataType {
+    public boolean step(Invocation invocation);
 
-    public List<List<HBGNode>> getRelatedOperations(HBGNode node, HappenBeforeGraph happenBeforeGraph) {
+    public default List<List<HBGNode>> getRelatedOperations(HBGNode node, HappenBeforeGraph happenBeforeGraph) {
         List<List<HBGNode>> lists = new ArrayList<>();
         for (HBGNode startNode : happenBeforeGraph.getStartNodes()) {
             List<HBGNode> tempList = new ArrayList<>();
@@ -31,17 +31,17 @@ public abstract class AbstractDataType {
         return lists;
     }
 
-    public boolean isReadCluster(Invocation invocation) {
+    public default boolean isReadCluster(Invocation invocation) {
         return false;
     }
 
-    public boolean isDummyOperation(HBGNode node) {
+    public default boolean isDummyOperation(HBGNode node) {
         return false;
     }
 
-    protected boolean isRelated(Invocation src, Invocation dest) {
+    public default boolean isRelated(Invocation src, Invocation dest) {
         return false;
     }
 
-    public abstract void reset();
+    public void reset();
 }

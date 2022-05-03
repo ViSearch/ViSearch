@@ -5,14 +5,14 @@ import java.util.Map;
 
 public class DataTypeFactory {
 
-    private Map<String, Class> factory = new HashMap<>();
+    private Map<String, DataTypeCreator> factory = new HashMap<>();
 
     private static DataTypeFactory instance = new DataTypeFactory();
 
     private DataTypeFactory() {
-        factory.put("set", CrdtSet.class);
-        factory.put("map", CrdtMap.class);
-        factory.put("rpq", CrdtRpq.class);
+        factory.put("set", new CrdtSetCreator());
+        factory.put("map", new CrdtMapCreator());
+        factory.put("rpq", new CrdtRpqCreator());
     }
 
     public static DataTypeFactory getInstance() {
@@ -20,20 +20,37 @@ public class DataTypeFactory {
     }
 
     public AbstractDataType getDataType(String dataType) {
-        Class clazz = factory.get(dataType);
-        if (clazz == null)
+        DataTypeCreator creator = factory.get(dataType);
+        if (creator == null)
         {
             return null;
         } else {
-            try {
-                return (AbstractDataType) clazz.newInstance();
-            } catch (Exception e) {
-                return null;
-            }
+            return creator.createDataType();
         }
     }
 
-    public void addDataType(String name, Class datatype) {
-        factory.put(name, datatype);
+    public void addDataType(String name, DataTypeCreator creator) {
+        factory.put(name, creator);
+    }
+}
+
+class CrdtSetCreator implements DataTypeCreator {
+    @Override
+    public AbstractDataType createDataType() {
+        return new CrdtSet();
+    }
+}
+
+class CrdtMapCreator implements DataTypeCreator {
+    @Override
+    public AbstractDataType createDataType() {
+        return new CrdtMap();
+    }
+}
+
+class CrdtRpqCreator implements DataTypeCreator {
+    @Override
+    public AbstractDataType createDataType() {
+        return new CrdtRpq();
     }
 }

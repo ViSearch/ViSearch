@@ -5,7 +5,7 @@ import history.Invocation;
 
 import java.util.HashSet;
 
-public class CrdtSet extends AbstractDataType {
+public class CrdtSet implements AbstractDataType {
     private HashSet<Integer> data = new HashSet<>();
 
     @Override
@@ -23,19 +23,19 @@ public class CrdtSet extends AbstractDataType {
             }
             case "contains": {
                 Integer key = (Integer) invocation.getArguments().get(0);
-                Boolean flag = data.contains(key);
-                if (invocation.getRetValues().size() == 0 || (Integer) invocation.getRetValues().get(0) == 0) {
+                boolean flag = data.contains(key);
+                if (invocation.getRetValues().size() == 0 || (Long) invocation.getRetValues().get(0) == 0) {
                     return !flag;
                 } else {
                     return flag;
                 }
             }
             case "size": {
-                Integer sz = data.size();
+                int sz = data.size();
                 if (invocation.getRetValues().size() == 0) {
                     return sz == 0;
                 } else {
-                    return sz.equals(invocation.getRetValues().get(0));
+                    return sz == ((Long)invocation.getRetValues().get(0)).intValue();
                 }
             }
             default:
@@ -43,22 +43,6 @@ public class CrdtSet extends AbstractDataType {
         }
         return false;
     }
-
-//    @Override
-//    public String excute(Invocation invocation) throws Exception {
-//        String methodName = invocation.getMethodName();
-//        if (methodName.equals("add")) {
-//            return add(invocation);
-//        } else if (methodName.equals("remove")) {
-//            return remove(invocation);
-//        } else if (methodName.equals("contains")) {
-//            return contains(invocation);
-//        } else if (methodName.equals("size")) {
-//            return size(invocation);
-//        } else {
-//            throw new Exception("Wrong operation: " + methodName);
-//        }
-//    }
 
     public boolean isReadCluster(Invocation invocation) {
         if (invocation.getMethodName().equals("contains")) {
@@ -68,7 +52,7 @@ public class CrdtSet extends AbstractDataType {
         }
     }
 
-    protected boolean isRelated(Invocation src, Invocation dest) {
+    public boolean isRelated(Invocation src, Invocation dest) {
        if (src.isQuery()) {
             if (src.getId() == dest.getId()) {
                 return true;
@@ -84,10 +68,10 @@ public class CrdtSet extends AbstractDataType {
     @Override
     public boolean isDummyOperation(HBGNode node) {
         Invocation invocation = node.getInvocation();
-        if (invocation.getMethodName().equals("size") && (invocation.getRetValues().size() == 0 || (Integer) invocation.getRetValues().get(0) == 0)) {
+        if (invocation.getMethodName().equals("size") && (invocation.getRetValues().size() == 0 || (Long) invocation.getRetValues().get(0) == 0)) {
             return true;
         }
-        if (invocation.getMethodName().equals("contains") && (invocation.getRetValues().size() == 0 || (Integer) invocation.getRetValues().get(0) == 0)) {
+        if (invocation.getMethodName().equals("contains") && (invocation.getRetValues().size() == 0 || (Long) invocation.getRetValues().get(0) == 0)) {
             return true;
         }
         return false;

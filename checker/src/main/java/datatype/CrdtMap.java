@@ -5,7 +5,7 @@ import history.Invocation;
 
 import java.util.*;
 
-public class CrdtMap extends AbstractDataType {
+public class CrdtMap implements AbstractDataType {
     private HashMap<Integer, Integer> data = new HashMap<>();
 
     @Override
@@ -73,7 +73,7 @@ public class CrdtMap extends AbstractDataType {
         return false;
     }
 
-    protected boolean isRelated(Invocation src, Invocation dest) {
+    public boolean isRelated(Invocation src, Invocation dest) {
         if (src.isQuery()) {
             if (src.getMethodName().equals("get")) {
                 if (src.getId() == dest.getId()) {
